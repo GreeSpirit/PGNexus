@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 
+// Disable caching for this route to always get fresh file list
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
 
