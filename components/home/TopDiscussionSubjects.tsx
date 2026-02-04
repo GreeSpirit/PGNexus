@@ -16,9 +16,6 @@ interface TopDiscussionSubjectsProps {
 export function TopDiscussionSubjects({ subjects, maxJobId }: TopDiscussionSubjectsProps) {
   const { t } = useLanguage();
 
-  // Find the maximum count for bar width
-  const maxCount = subjects.length > 0 ? Math.max(...subjects.map(s => s.count)) : 1;
-
   return (
     <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-6">
       <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
@@ -26,8 +23,8 @@ export function TopDiscussionSubjects({ subjects, maxJobId }: TopDiscussionSubje
       </h3>
       <div className="space-y-4">
         {subjects.map((subject, index) => {
-          const barPercentage = (subject.count / maxCount) * 100;
-          const displayPercentage = ((subject.count / maxJobId) * 100).toFixed(1);
+          const percentage = ((subject.count / maxJobId) * 100);
+          const displayPercentage = percentage.toFixed(1);
           const gradientColors = [
             'from-blue-600 to-indigo-600',
             'from-purple-600 to-pink-600',
@@ -50,7 +47,7 @@ export function TopDiscussionSubjects({ subjects, maxJobId }: TopDiscussionSubje
               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-full bg-gradient-to-r ${gradient} rounded-full transition-all duration-500 ease-out`}
-                  style={{ width: `${barPercentage}%` }}
+                  style={{ width: `${percentage}%` }}
                 />
               </div>
             </div>
