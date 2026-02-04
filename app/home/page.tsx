@@ -59,6 +59,7 @@ export default async function DashboardPage() {
       link: `/tech-blogs?jobid=${feed.jobid}`,
       summary_english: feed.summary,
       summary_chinese: feed.summary_zh,
+      imgurl: feed.imgurl,
     };
   });
 

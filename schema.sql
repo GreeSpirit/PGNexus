@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS rss_feeds (
         jobid                   BIGINT REFERENCES poll_jobs(jobid),
         title                   TEXT NOT NULL,
         url                     TEXT NOT NULL,
+		imgurl					TEXT DEFAULT NULL,
         author                  TEXT NOT NULL,
         pubdate                 TIMESTAMPTZ NOT NULL,
         content                 TEXT,

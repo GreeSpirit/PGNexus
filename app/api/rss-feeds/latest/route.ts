@@ -20,7 +20,8 @@ export async function GET(request: NextRequest) {
         author,
         pubdate,
         summary,
-        summary_zh
+        summary_zh,
+        imgurl
       FROM rss_feeds
       WHERE pubdate IS NOT NULL
       ORDER BY pubdate DESC

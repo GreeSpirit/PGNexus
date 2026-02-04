@@ -15,6 +15,7 @@ interface RssFeed {
   pubdate: string;
   summary: string;
   summary_zh: string;
+  imgurl?: string;
 }
 
 function TechBlogsContent() {
@@ -215,6 +216,21 @@ function TechBlogsContent() {
           <div className="flex-1 min-w-0">
             {selectedFeed ? (
               <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-4 sm:p-8">
+                {/* Image */}
+                {(() => {
+                  const feedIndex = feeds.findIndex(f => f.jobid === selectedFeed.jobid);
+                  const imageSrc = selectedFeed.imgurl || `/images/default${(feedIndex % 6) + 1}.jpg`;
+                  return (
+                    <div className="mb-6 w-full overflow-hidden rounded-xl">
+                      <img
+                        src={imageSrc}
+                        alt={selectedFeed.title}
+                        className="w-full h-auto object-cover max-h-96"
+                      />
+                    </div>
+                  );
+                })()}
+
                 <div className="mb-6 pb-6 border-b border-slate-200/60 dark:border-slate-700/60">
                   <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3 break-words">
                     {selectedFeed.title}

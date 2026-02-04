@@ -10,6 +10,7 @@ export interface RssFeed {
   snippet?: string;
   summary?: string;
   summary_zh?: string;
+  imgurl?: string;
 }
 
 export interface EmailFeed {
@@ -60,6 +61,7 @@ export interface UnifiedFeed {
   link?: string;
   summary_english?: string;
   summary_chinese?: string;
+  imgurl?: string;
   metadata?: Record<string, any>;
 }
 

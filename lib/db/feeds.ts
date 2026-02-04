@@ -10,7 +10,7 @@ export async function getLatestRssFeeds(
   userSubscriptions?: string[]
 ): Promise<RssFeed[]> {
   let queryText = `
-    SELECT jobid, title, url, author, pubdate, content, snippet, summary, summary_zh FROM rss_feeds
+    SELECT jobid, title, url, author, pubdate, content, snippet, summary, summary_zh, imgurl FROM rss_feeds
   `;
   const params: any[] = [];
 
@@ -116,6 +116,7 @@ export async function getAllFeeds(
       link: feed.url,
       summary_english: feed.summary,
       summary_chinese: feed.summary_zh,
+      imgurl: feed.imgurl,
     });
   });
 
@@ -197,7 +198,7 @@ export async function searchFeeds(
   // Search RSS feeds
   if (!feedType || feedType === 'rss') {
     let rssQuery = `
-      SELECT jobid, title, url, author, pubdate, content, snippet, summary, summary_zh FROM rss_feeds
+      SELECT jobid, title, url, author, pubdate, content, snippet, summary, summary_zh, imgurl FROM rss_feeds
       WHERE (title ILIKE $1 OR content ILIKE $1 OR snippet ILIKE $1 OR summary ILIKE $1 OR summary_zh ILIKE $1)
     `;
     const rssParams: any[] = [searchPattern];
@@ -237,6 +238,7 @@ export async function searchFeeds(
         link: feed.url,
         summary_english: feed.summary,
         summary_chinese: feed.summary_zh,
+        imgurl: feed.imgurl,
       });
     });
   }

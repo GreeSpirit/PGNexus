@@ -120,7 +120,6 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds }: HomePageCon
         title={t(trans.homePage.techBlogsTitle)}
         type="rss"
         viewAllLink="/tech-blogs"
-        images={["24.jpg", "25.jpg", "26.jpg"]}
         description={t(trans.homePage.techBlogsDescription)}
       />
 
