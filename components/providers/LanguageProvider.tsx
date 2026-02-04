@@ -22,11 +22,21 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("en");
 
-  // Load saved language preference from localStorage
+  // Load saved language preference from localStorage or detect from browser
   useEffect(() => {
     const saved = localStorage.getItem("language");
     if (saved === "en" || saved === "zh") {
+      // User has a saved preference, use it
       setLanguageState(saved);
+    } else {
+      // No saved preference, detect from browser locale
+      const browserLang = navigator.language || navigator.languages?.[0] || "en";
+      // Check if browser language is Chinese (zh, zh-CN, zh-TW, etc.)
+      if (browserLang.toLowerCase().startsWith("zh")) {
+        setLanguageState("zh");
+      } else {
+        setLanguageState("en");
+      }
     }
   }, []);
 
