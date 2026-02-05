@@ -60,7 +60,7 @@ export async function getLatestNewsFeeds(
   userSubscriptions?: string[]
 ): Promise<NewsFeed[]> {
   let queryText = `
-    SELECT jobid, subject, source, pubdate, messages, summary, summary_zh FROM news_feeds
+    SELECT jobid, subject, source, pubdate, messages, summary, summary_zh, imgurl FROM news_feeds
   `;
   const params: any[] = [];
 
@@ -160,6 +160,7 @@ export async function getAllFeeds(
       link: undefined,
       summary_english: feed.summary,
       summary_chinese: feed.summary_zh,
+      imgurl: feed.imgurl,
     });
   });
 
@@ -295,7 +296,7 @@ export async function searchFeeds(
   // Search news feeds
   if (!feedType || feedType === 'news') {
     let newsQuery = `
-      SELECT jobid, subject, source, pubdate, messages, summary, summary_zh FROM news_feeds
+      SELECT jobid, subject, source, pubdate, messages, summary, summary_zh, imgurl FROM news_feeds
       WHERE (subject ILIKE $1 OR messages ILIKE $1 OR summary ILIKE $1 OR summary_zh ILIKE $1)
     `;
     const newsParams: any[] = [searchPattern];
@@ -324,6 +325,7 @@ export async function searchFeeds(
         link: undefined,
         summary_english: feed.summary,
         summary_chinese: feed.summary_zh,
+        imgurl: feed.imgurl,
       });
     });
   }

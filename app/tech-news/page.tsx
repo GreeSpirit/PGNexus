@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, X, Newspaper, Loader2 } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { Search, X, Newspaper, Loader2, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
@@ -14,9 +15,11 @@ interface NewsFeed {
   messages: string;
   summary: string;
   summary_zh: string;
+  imgurl?: string;
 }
 
-export default function TechNewsPage() {
+function TechNewsContent() {
+  const searchParams = useSearchParams();
   const { language, t } = useLanguage();
   const [feeds, setFeeds] = useState<NewsFeed[]>([]);
   const [selectedFeed, setSelectedFeed] = useState<NewsFeed | null>(null);
@@ -29,6 +32,27 @@ export default function TechNewsPage() {
   const fetchFeeds = async (query: string = "") => {
     try {
       setIsLoading(true);
+
+      // Check if there's a source or jobid in URL params and fetch that specific feed first
+      const sourceParam = searchParams.get('source');
+      const jobidParam = searchParams.get('jobid');
+
+      if (sourceParam || jobidParam) {
+        try {
+          const param = sourceParam ? `source=${encodeURIComponent(sourceParam)}` : `jobid=${jobidParam}`;
+          const feedResponse = await fetch(`/api/news-feeds/by-jobid?${param}`);
+          if (feedResponse.ok) {
+            const feedData = await feedResponse.json();
+            if (feedData.feed) {
+              setSelectedFeed(feedData.feed);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching specific news feed:", error);
+        }
+      }
+
+      // Fetch the list of feeds
       const url = query
         ? `/api/news-feeds/search?q=${encodeURIComponent(query)}&limit=100&offset=0`
         : `/api/news-feeds/latest?limit=100&offset=0`;
@@ -38,8 +62,8 @@ export default function TechNewsPage() {
 
       setFeeds(data.feeds || []);
 
-      // Auto-select first feed if none selected
-      if (data.feeds && data.feeds.length > 0 && !selectedFeed) {
+      // Auto-select first feed if none selected and no source/jobid param
+      if (!sourceParam && !jobidParam && data.feeds && data.feeds.length > 0 && !selectedFeed) {
         setSelectedFeed(data.feeds[0]);
       }
     } catch (error) {
@@ -187,19 +211,41 @@ export default function TechNewsPage() {
         <div className="flex-1 min-w-0">
           {selectedFeed ? (
             <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-4 sm:p-8">
+              {/* Image */}
+              {(() => {
+                const feedIndex = feeds.findIndex(f => f.jobid === selectedFeed.jobid);
+                const imageSrc = selectedFeed.imgurl || `/images/default${(feedIndex % 6) + 1}.jpg`;
+                return (
+                  <div className="mb-6 w-full overflow-hidden rounded-xl">
+                    <img
+                      src={imageSrc}
+                      alt={selectedFeed.subject}
+                      className="w-full h-auto object-cover max-h-96"
+                    />
+                  </div>
+                );
+              })()}
+
               <div className="mb-6 pb-6 border-b border-slate-200/60 dark:border-slate-700/60">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3 break-words">
                   {selectedFeed.subject}
                 </h2>
-                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="font-medium">{selectedFeed.source}</span>
-                  <span>•</span>
+                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-3">
                   <span>
                     {formatDistanceToNow(new Date(selectedFeed.pubdate), {
                       addSuffix: true,
                     })}
                   </span>
                 </div>
+                <a
+                  href={selectedFeed.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium cursor-pointer"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {t(trans.techNewsPage.viewOriginal)}
+                </a>
               </div>
 
               <div className="prose dark:prose-invert max-w-none">
@@ -229,5 +275,17 @@ export default function TechNewsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TechNewsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <TechNewsContent />
+    </Suspense>
   );
 }

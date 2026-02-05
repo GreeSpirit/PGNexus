@@ -111,9 +111,10 @@ export default async function DashboardPage() {
     content: feed.messages,
     date: feed.pubdate,
     source: feed.source,
-    link: undefined,
+    link: `/tech-news?source=${encodeURIComponent(feed.source)}`,
     summary_english: feed.summary,
     summary_chinese: feed.summary_zh,
+    imgurl: feed.imgurl,
   }));
 
   return (

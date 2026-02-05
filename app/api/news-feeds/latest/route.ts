@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
         pubdate,
         messages,
         summary,
-        summary_zh
+        summary_zh,
+        imgurl
       FROM news_feeds
       ORDER BY COALESCE(pubdate, '1970-01-01'::timestamp) DESC, jobid DESC
       LIMIT $1 OFFSET $2

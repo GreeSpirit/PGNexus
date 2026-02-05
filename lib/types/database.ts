@@ -32,6 +32,7 @@ export interface NewsFeed {
   messages?: string;
   summary?: string;
   summary_zh?: string;
+  imgurl?: string;
 }
 
 export interface User {

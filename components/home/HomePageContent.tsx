@@ -244,7 +244,6 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
         title={t(trans.homePage.industryNewsTitle)}
         type="news"
         viewAllLink="/tech-news"
-        images={["default1.jpg", "default2.jpg", "default3.jpg"]}
         description={t(trans.homePage.industryNewsDescription)}
       />
 

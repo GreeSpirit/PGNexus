@@ -215,6 +215,7 @@ export const translations = {
     selectNewsTitle: { en: "Select a news article", zh: "选择一篇新闻" },
     noNewsSubtext: { en: "News articles will appear here once added", zh: "添加后新闻文章将显示在此处" },
     selectNewsSubtext: { en: "Choose a news article from the sidebar to view its summary", zh: "从侧边栏选择一篇新闻文章以查看其摘要" },
+    viewOriginal: { en: "View Original News", zh: "查看原始新闻" },
   },
 
   // ========================================

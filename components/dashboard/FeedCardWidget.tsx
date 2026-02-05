@@ -68,16 +68,20 @@ function FeedCard({
 
   // Determine which image to use
   const getImageSrc = () => {
-    // First priority: use imgurl from the feed data
-    if (feed.imgurl) {
+    // First priority: use imgurl from the feed data (check for non-empty string)
+    if (feed.imgurl && feed.imgurl.trim() !== '') {
+      console.log(`Using imgurl for ${feed.title}:`, feed.imgurl);
       return feed.imgurl;
     }
     // Second priority: use provided image prop
     if (image) {
+      console.log(`Using provided image for ${feed.title}:`, image);
       return `/images/${image}`;
     }
     // Third priority: use default image based on card position (1-indexed)
-    return `/images/default${index + 1}.jpg`;
+    const defaultImg = `/images/default${index + 1}.jpg`;
+    console.log(`Using default image for ${feed.title}:`, defaultImg, 'feed.imgurl:', feed.imgurl);
+    return defaultImg;
   };
 
   const CardContent = () => (
@@ -141,10 +145,7 @@ function FeedCard({
                 {summary}
               </p>
             )}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-700/60 mt-auto">
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {feed.source}
-              </span>
+            <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 mt-auto">
               {feed.date && (
                 <span className="text-xs text-slate-500 dark:text-slate-400">
                   {formatDistanceToNow(new Date(feed.date), { addSuffix: true })}

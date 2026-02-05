@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
         pubdate,
         messages,
         summary,
-        summary_zh
+        summary_zh,
+        imgurl
       FROM news_feeds
       WHERE
         subject ILIKE $1
