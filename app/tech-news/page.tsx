@@ -187,7 +187,7 @@ function TechNewsContent() {
                         <span className="font-medium line-clamp-2">{feed.subject}</span>
                       </div>
                       <div className="text-xs opacity-75 ml-6">
-                        {feed.source} • {formatDistanceToNow(new Date(feed.pubdate), {
+                        {formatDistanceToNow(new Date(feed.pubdate), {
                           addSuffix: true,
                         })}
                       </div>
