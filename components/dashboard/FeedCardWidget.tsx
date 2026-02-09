@@ -16,6 +16,22 @@ interface FeedCardWidgetProps {
   description?: string;
 }
 
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+  if (diffInHours < 24) {
+    return formatDistanceToNow(date, { addSuffix: true });
+  } else {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+};
+
 export function FeedCardWidget({ feeds, title, type, viewAllLink, images, description }: FeedCardWidgetProps) {
   const { t } = useLanguage();
   const linkHref = viewAllLink || `/feeds?type=${type}`;
@@ -114,7 +130,7 @@ function FeedCard({
               </span>
               {feed.date && (
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  {formatDistanceToNow(new Date(feed.date), { addSuffix: true })}
+                  {formatDate(feed.date)}
                 </span>
               )}
             </div>
@@ -131,7 +147,7 @@ function FeedCard({
             <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 mt-auto">
               {feed.date && (
                 <span className="text-sm text-slate-600 dark:text-slate-400">
-                  {formatDistanceToNow(new Date(feed.date), { addSuffix: true })}
+                  {formatDate(feed.date)}
                 </span>
               )}
             </div>
@@ -148,7 +164,7 @@ function FeedCard({
             <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 mt-auto">
               {feed.date && (
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  {formatDistanceToNow(new Date(feed.date), { addSuffix: true })}
+                  {formatDate(feed.date)}
                 </span>
               )}
             </div>

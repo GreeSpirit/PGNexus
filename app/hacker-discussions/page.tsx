@@ -37,6 +37,22 @@ function HackerDiscussionsContent() {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(10);
 
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return formatDistanceToNow(date, { addSuffix: true });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  };
+
   const fetchSubjects = async (query: string = "") => {
     try {
       setIsLoading(true);
@@ -204,9 +220,7 @@ function HackerDiscussionsContent() {
                       <span className="font-medium line-clamp-2">{subject.subject}</span>
                     </div>
                     <div className="text-xs opacity-75 ml-6">
-                      {formatDistanceToNow(new Date(subject.lastactivity), {
-                        addSuffix: true,
-                      })}
+                      {formatDate(subject.lastactivity)}
                     </div>
                   </button>
                 ))}
@@ -231,9 +245,7 @@ function HackerDiscussionsContent() {
                     {selectedSubject.subject}
                   </h2>
                   <div className="text-sm text-slate-500 dark:text-slate-400">
-                    {t(trans.hackerDiscussionsPage.lastUpdated)} {formatDistanceToNow(new Date(selectedSubject.lastactivity), {
-                      addSuffix: true,
-                    })}
+                    {t(trans.hackerDiscussionsPage.lastUpdated)} {formatDate(selectedSubject.lastactivity)}
                   </div>
                 </div>
 
@@ -275,14 +287,9 @@ function HackerDiscussionsContent() {
                           key={entry.jobid}
                           className="border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-6 bg-slate-50/30 dark:bg-slate-800/30"
                         >
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs font-mono px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
-                                #{entry.jobid}
-                              </span>
-                            </div>
-                            {entry.lastactivity && (
-                              messageUrl ? (
+                          {entry.lastactivity && (
+                            <div className="flex justify-end mb-4">
+                              {messageUrl ? (
                                 <a
                                   href={messageUrl}
                                   target="_blank"
@@ -295,9 +302,9 @@ function HackerDiscussionsContent() {
                                 <span className="text-xs text-slate-500 dark:text-slate-400">
                                   {t(trans.hackerDiscussionsPage.asOf)} {new Date(entry.lastactivity).toLocaleString()}
                                 </span>
-                              )
-                            )}
-                          </div>
+                              )}
+                            </div>
+                          )}
 
                           <div className="prose dark:prose-invert max-w-none mb-4">
                             <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">

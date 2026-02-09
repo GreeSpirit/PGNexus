@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Twitter, Github, Linkedin } from "lucide-react";
+import { Facebook, Github, Linkedin } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
 
@@ -60,13 +60,24 @@ export function Footer() {
             {/* Social Links */}
             <div className="flex gap-4">
               <a
-                href="https://twitter.com"
+                href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-blue-400 transition-all cursor-pointer"
-                aria-label="Twitter"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all cursor-pointer"
+                aria-label="X (formerly Twitter)"
               >
-                <Twitter className="h-5 w-5" />
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-blue-500 transition-all cursor-pointer"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
               </a>
               <a
                 href="https://github.com"

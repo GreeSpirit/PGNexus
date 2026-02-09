@@ -29,6 +29,22 @@ function TechNewsContent() {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(10);
 
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return formatDistanceToNow(date, { addSuffix: true });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  };
+
   const fetchFeeds = async (query: string = "") => {
     try {
       setIsLoading(true);
@@ -187,9 +203,7 @@ function TechNewsContent() {
                         <span className="font-medium line-clamp-2">{feed.subject}</span>
                       </div>
                       <div className="text-xs opacity-75 ml-6">
-                        {formatDistanceToNow(new Date(feed.pubdate), {
-                          addSuffix: true,
-                        })}
+                        {formatDate(feed.pubdate)}
                       </div>
                     </button>
                   ))}
@@ -232,9 +246,7 @@ function TechNewsContent() {
                 </h2>
                 <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-3">
                   <span>
-                    {formatDistanceToNow(new Date(selectedFeed.pubdate), {
-                      addSuffix: true,
-                    })}
+                    {formatDate(selectedFeed.pubdate)}
                   </span>
                 </div>
                 <a

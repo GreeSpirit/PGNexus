@@ -45,6 +45,22 @@ function TechBlogsContent() {
     return author;
   };
 
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return formatDistanceToNow(date, { addSuffix: true });
+    } else {
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  };
+
   const fetchFeeds = async (query: string = "") => {
     try {
       setIsLoading(true);
@@ -195,7 +211,7 @@ function TechBlogsContent() {
                     key={feed.jobid}
                     onClick={() => handleFeedSelect(feed)}
                     className={`w-full text-left px-3 py-3 rounded-lg transition-all cursor-pointer text-sm ${
-                      selectedFeed?.jobid === feed.jobid
+                      selectedFeed?.url === feed.url
                         ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80"
                     }`}
@@ -205,9 +221,7 @@ function TechBlogsContent() {
                       <span className="font-medium line-clamp-2">{feed.title}</span>
                     </div>
                     <div className="text-xs opacity-75 ml-6">
-                      {getDisplayAuthor(feed.author, feed.url)} • {formatDistanceToNow(new Date(feed.pubdate), {
-                        addSuffix: true,
-                      })}
+                      {getDisplayAuthor(feed.author, feed.url)} • {formatDate(feed.pubdate)}
                     </div>
                   </button>
                 ))}
@@ -229,7 +243,7 @@ function TechBlogsContent() {
               <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-4 sm:p-8">
                 {/* Image */}
                 {(() => {
-                  const feedIndex = feeds.findIndex(f => f.jobid === selectedFeed.jobid);
+                  const feedIndex = feeds.findIndex(f => f.url === selectedFeed.url);
                   const imageSrc = selectedFeed.imgurl || `/images/default${(feedIndex % 6) + 1}.jpg`;
                   return (
                     <div className="mb-6 w-full overflow-hidden rounded-xl">
@@ -252,9 +266,7 @@ function TechBlogsContent() {
                     </span>
                     <span>•</span>
                     <span>
-                      {formatDistanceToNow(new Date(selectedFeed.pubdate), {
-                        addSuffix: true,
-                      })}
+                      {formatDate(selectedFeed.pubdate)}
                     </span>
                   </div>
                   <a

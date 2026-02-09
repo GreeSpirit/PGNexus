@@ -68,14 +68,28 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
                 {getIcon()}
                 {feed.type === 'daily-updates' ? 'DAILY UPDATE' : feed.type.toUpperCase()}
               </Badge>
-              {feed.source && (
+              {feed.source && feed.type !== 'news' && (
                 <span className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate bg-slate-100/80 dark:bg-slate-800/80 px-2 py-1 rounded-md">
                   {feed.source}
                 </span>
               )}
             </div>
             <CardTitle className="text-xl leading-tight font-bold text-slate-900 dark:text-slate-100">
-              {feed.link ? (
+              {feed.type === 'news' && feed.source ? (
+                <Link
+                  href={`/tech-news?source=${encodeURIComponent(feed.source)}`}
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                >
+                  <span className="group-hover:underline">{feed.title}</span>
+                </Link>
+              ) : feed.type === 'rss' && feed.link ? (
+                <Link
+                  href={`/tech-blogs?url=${encodeURIComponent(feed.link)}`}
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                >
+                  <span className="group-hover:underline">{feed.title}</span>
+                </Link>
+              ) : feed.link ? (
                 isDailyUpdate ? (
                   <Link
                     href={feed.link}
@@ -102,7 +116,21 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
           </div>
         </div>
         <CardDescription className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2">
-          {feed.date ? formatRelativeTime(new Date(feed.date)) : 'No date'}
+          {feed.date ? (() => {
+            const feedDate = new Date(feed.date);
+            const now = new Date();
+            const diffInHours = (now.getTime() - feedDate.getTime()) / (1000 * 60 * 60);
+
+            if (diffInHours < 24) {
+              return formatRelativeTime(feedDate);
+            } else {
+              return feedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              });
+            }
+          })() : 'No date'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

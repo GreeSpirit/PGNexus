@@ -96,6 +96,22 @@ function FeedCard({
   return <CardContent />;
 }
 
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+  if (diffInHours < 24) {
+    return formatDistanceToNow(date, { addSuffix: true });
+  } else {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+};
+
 export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, maxJobId }: HomePageContentProps) {
   const { t, language } = useLanguage();
 
@@ -208,7 +224,7 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
                       <Clock className="h-4 w-4" />
                       {feed.date && (
                         <span>
-                          {formatDistanceToNow(new Date(feed.date), { addSuffix: true })}
+                          {formatDate(feed.date)}
                         </span>
                       )}
                     </div>
