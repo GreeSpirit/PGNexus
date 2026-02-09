@@ -30,11 +30,13 @@ interface EmailSubjectListProps {
 
 export function EmailSubjectList({ subjects, language }: EmailSubjectListProps) {
   const [subjectEntries, setSubjectEntries] = useState<Record<string, EmailEntry | null>>({});
+  const [fetchedSubjects, setFetchedSubjects] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Fetch the latest entry for each subject
     subjects.forEach(async (subject) => {
-      if (!subjectEntries[subject.subject]) {
+      if (!fetchedSubjects.has(subject.subject)) {
+        setFetchedSubjects((prev) => new Set(prev).add(subject.subject));
         try {
           const response = await fetch(
             `/api/email-feeds/by-subject?subject=${encodeURIComponent(subject.subject)}&limit=1&offset=0`
@@ -52,7 +54,7 @@ export function EmailSubjectList({ subjects, language }: EmailSubjectListProps) 
         }
       }
     });
-  }, [subjects]);
+  }, [subjects, fetchedSubjects]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

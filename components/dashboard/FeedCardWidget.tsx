@@ -16,8 +16,8 @@ interface FeedCardWidgetProps {
   description?: string;
 }
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
+const formatDate = (dateInput: string | Date): string => {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
   const now = new Date();
   const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
