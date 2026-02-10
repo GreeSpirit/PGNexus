@@ -141,15 +141,16 @@ export const translations = {
     },
 
     // Hacker Discussions Stats
-    emailsThisWeek: { en: "Emails This Week", zh: "本周邮件" },
+    emailsThisWeek: { en: "Emails (last 7 days)", zh: "邮件（过去7天）" },
     emailsThisWeekCount: { en: "342", zh: "342" },
-    patchesSubmitted: { en: "Patches Submitted", zh: "提交的补丁" },
+    patchesSubmitted: { en: "Patches submitted (last 7 days)", zh: "提交的补丁（过去7天）" },
     patchesSubmittedCount: { en: "28", zh: "28" },
-    activeContributors: { en: "Active Contributors", zh: "活跃贡献者" },
+    activeContributors: { en: "Active Contributors (last 7 days)", zh: "活跃贡献者（过去7天）" },
     activeContributorsCount: { en: "156", zh: "156" },
-    weeklyEmailActivity: { en: "Weekly Email Activity", zh: "每周邮件活动" },
+    weeklyEmailActivity: { en: "Daily Email Activity", zh: "每日邮件活动" },
     emailsLabel: { en: "Emails", zh: "邮件数量" },
     patchesLabel: { en: "Patches", zh: "补丁数量" },
+    contributorsLabel: { en: "Contributors", zh: "贡献者数量" },
     topDiscussionSubjects: { en: "Top Discussion Subjects", zh: "热门讨论主题" },
 
     // Industry News Section

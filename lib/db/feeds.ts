@@ -368,3 +368,61 @@ export async function getAvailableSources(): Promise<{
     news: newsResult.rows.map((row) => row.source),
   };
 }
+
+/**
+ * Get daily email statistics for the last 7 days
+ */
+export async function getDailyEmailStats(): Promise<Array<{
+  day: string;
+  total_message: number;
+  attachment_count: number;
+  unique_contrib_count: number;
+}>> {
+  const queryText = `
+    SELECT day, total_message, attachment_count, unique_contrib_count
+    FROM daily_email_stats
+    WHERE type = 'hacker'
+    ORDER BY day DESC
+    LIMIT 7
+  `;
+
+  const result = await query(queryText);
+  // Reverse to get oldest first (for chart display)
+  return result.rows.reverse();
+}
+
+/**
+ * Get weekly totals for email statistics from the most recent week
+ */
+export async function getWeeklyEmailTotals(): Promise<{
+  totalEmails: number;
+  totalPatches: number;
+  totalContributors: number;
+}> {
+  const queryText = `
+    SELECT
+      COALESCE(total_message, 0) as total_emails,
+      COALESCE(unique_patch_count, 0) as total_patches,
+      COALESCE(unique_contrib_count, 0) as total_contributors
+    FROM weekly_email_stats
+    WHERE type = 'hacker'
+    ORDER BY day DESC
+    LIMIT 1
+  `;
+
+  const result = await query(queryText);
+
+  if (result.rows.length === 0) {
+    return {
+      totalEmails: 0,
+      totalPatches: 0,
+      totalContributors: 0,
+    };
+  }
+
+  return {
+    totalEmails: parseInt(result.rows[0].total_emails) || 0,
+    totalPatches: parseInt(result.rows[0].total_patches) || 0,
+    totalContributors: parseInt(result.rows[0].total_contributors) || 0,
+  };
+}

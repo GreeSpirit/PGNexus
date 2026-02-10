@@ -99,6 +99,37 @@ CREATE TABLE IF NOT EXISTS news_feeds (
         summary_zh              TEXT
 );
 
+-- email statistics
+CREATE TABLE IF NOT EXISTS daily_email_stats (
+		day 					DATE PRIMARY KEY,
+		type					TEXT NOT NULL DEFAULT 'hacker',
+		total_message			INT NOT NULL DEFAULT 0,
+		attachment_count		INT NOT NULL DEFAULT 0,
+		unique_patch_count		INT NOT NULL DEFAULT 0,
+		unique_contrib_count	INT NOT NULL DEFAULT 0,
+		patches					TEXT DEFAULT NULL,
+		contribs				TEXT DEFAULT NULL,
+		collect_time			TIMESTAMPTZ
+);
+CREATE INDEX daily_email_stats_index ON daily_email_stats(day);
+CREATE UNIQUE INDEX daily_email_stats_index2 on daily_email_stats(day, type);
+
+
+CREATE TABLE IF NOT EXISTS weekly_email_stats (
+        day                     DATE PRIMARY KEY,
+        type                    TEXT NOT NULL DEFAULT 'hacker',
+        total_message           INT NOT NULL DEFAULT 0,
+        attachment_count        INT NOT NULL DEFAULT 0,
+        unique_patch_count      INT NOT NULL DEFAULT 0,
+        unique_contrib_count    INT NOT NULL DEFAULT 0,
+        patches                 TEXT DEFAULT NULL,
+        contribs                TEXT DEFAULT NULL,
+        collect_time            TIMESTAMPTZ
+);
+CREATE INDEX weekly_email_stats_index ON weekly_email_stats(day);
+CREATE UNIQUE INDEX weekly_email_stats_index2 on weekly_email_stats(day, type);
+
+
 -- =====================================================
 -- 3. INDEXES FOR PERFORMANCE
 -- =====================================================

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
+import { useEffect, useState } from "react";
 import { FeedCardWidget } from "@/components/dashboard/FeedCardWidget";
 import { CommunitySection } from "@/components/home/CommunitySection";
 import { WeeklyEmailChart } from "@/components/home/WeeklyEmailChart";
@@ -114,23 +115,43 @@ const formatDate = (dateInput: string | Date): string => {
 
 export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, maxJobId }: HomePageContentProps) {
   const { t, language } = useLanguage();
+  const [weeklyTotals, setWeeklyTotals] = useState<{
+    totalEmails: number;
+    totalPatches: number;
+    totalContributors: number;
+  } | null>(null);
+
+  useEffect(() => {
+    async function fetchWeeklyTotals() {
+      try {
+        const response = await fetch('/api/email-stats/weekly-totals');
+        if (response.ok) {
+          const data = await response.json();
+          setWeeklyTotals(data);
+        }
+      } catch (error) {
+        console.error('Error fetching weekly totals:', error);
+      }
+    }
+    fetchWeeklyTotals();
+  }, []);
 
   const hackerStats = [
     {
       icon: Mail,
-      count: t(trans.homePage.emailsThisWeekCount),
+      count: weeklyTotals?.totalEmails?.toString() || t(trans.homePage.emailsThisWeekCount),
       label: t(trans.homePage.emailsThisWeek),
       color: "from-blue-600 to-indigo-600",
     },
     {
       icon: FileCode,
-      count: t(trans.homePage.patchesSubmittedCount),
+      count: weeklyTotals?.totalPatches?.toString() || t(trans.homePage.patchesSubmittedCount),
       label: t(trans.homePage.patchesSubmitted),
       color: "from-purple-600 to-pink-600",
     },
     {
       icon: Users,
-      count: t(trans.homePage.activeContributorsCount),
+      count: weeklyTotals?.totalContributors?.toString() || t(trans.homePage.activeContributorsCount),
       label: t(trans.homePage.activeContributors),
       color: "from-green-600 to-emerald-600",
     },
