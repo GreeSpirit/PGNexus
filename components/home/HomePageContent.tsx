@@ -11,7 +11,7 @@ import { TopDiscussionSubjects } from "@/components/home/TopDiscussionSubjects";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
 import type { UnifiedFeed } from "@/lib/types/database";
-import { Mail, FileCode, Users, ExternalLink, MessageCircle, Clock } from "lucide-react";
+import { Mail, FileCode, Users, ExternalLink, MessageCircle, Clock, TrendingUp, TrendingDown } from "lucide-react";
 
 interface TopSubject {
   subject: string;
@@ -122,6 +122,9 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
     totalEmails: number;
     totalPatches: number;
     totalContributors: number;
+    emailsChange?: number;
+    patchesChange?: number;
+    contributorsChange?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -145,18 +148,21 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
       count: weeklyTotals?.totalEmails?.toString() || t(trans.homePage.emailsThisWeekCount),
       label: t(trans.homePage.emailsThisWeek),
       color: "from-blue-600 to-indigo-600",
+      change: weeklyTotals?.emailsChange,
     },
     {
       icon: FileCode,
       count: weeklyTotals?.totalPatches?.toString() || t(trans.homePage.patchesSubmittedCount),
       label: t(trans.homePage.patchesSubmitted),
       color: "from-purple-600 to-pink-600",
+      change: weeklyTotals?.patchesChange,
     },
     {
       icon: Users,
       count: weeklyTotals?.totalContributors?.toString() || t(trans.homePage.activeContributorsCount),
       label: t(trans.homePage.activeContributors),
       color: "from-green-600 to-emerald-600",
+      change: weeklyTotals?.contributorsChange,
     },
   ];
 
@@ -196,6 +202,9 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {hackerStats.map((stat, index) => {
             const Icon = stat.icon;
+            const hasChange = stat.change !== undefined && stat.change !== null;
+            const isPositive = hasChange && stat.change > 0;
+            const isNegative = hasChange && stat.change < 0;
             return (
               <div
                 key={index}
@@ -205,9 +214,22 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
                   <div className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-r ${stat.color} flex items-center justify-center shadow-md`}>
                     <Icon className="h-7 w-7 text-white" />
                   </div>
-                  <div>
-                    <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                      {stat.count}
+                  <div className="flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                        {stat.count}
+                      </div>
+                      {hasChange && (
+                        <div className={`flex items-center gap-1 text-xs font-semibold ${
+                          isPositive ? 'text-green-600 dark:text-green-400' :
+                          isNegative ? 'text-red-600 dark:text-red-400' :
+                          'text-slate-500 dark:text-slate-400'
+                        }`}>
+                          {isPositive && <TrendingUp className="h-3 w-3" />}
+                          {isNegative && <TrendingDown className="h-3 w-3" />}
+                          <span>{isPositive ? '+' : ''}{stat.change.toFixed(1)}%</span>
+                        </div>
+                      )}
                     </div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
                       {stat.label}

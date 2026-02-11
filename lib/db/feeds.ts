@@ -399,11 +399,15 @@ export async function getDailyEmailStats(): Promise<Array<{
 
 /**
  * Get weekly totals for email statistics from the most recent week
+ * Also calculates percentage change compared to previous week
  */
 export async function getWeeklyEmailTotals(): Promise<{
   totalEmails: number;
   totalPatches: number;
   totalContributors: number;
+  emailsChange?: number;
+  patchesChange?: number;
+  contributorsChange?: number;
 }> {
   const queryText = `
     SELECT
@@ -413,7 +417,7 @@ export async function getWeeklyEmailTotals(): Promise<{
     FROM weekly_email_stats
     WHERE type = 'hacker'
     ORDER BY day DESC
-    LIMIT 1
+    LIMIT 2
   `;
 
   const result = await query(queryText);
@@ -426,9 +430,32 @@ export async function getWeeklyEmailTotals(): Promise<{
     };
   }
 
-  return {
+  const currentWeek = {
     totalEmails: parseInt(result.rows[0].total_emails) || 0,
     totalPatches: parseInt(result.rows[0].total_patches) || 0,
     totalContributors: parseInt(result.rows[0].total_contributors) || 0,
   };
+
+  // Calculate percentage change if we have previous week data
+  if (result.rows.length > 1) {
+    const previousWeek = {
+      totalEmails: parseInt(result.rows[1].total_emails) || 0,
+      totalPatches: parseInt(result.rows[1].total_patches) || 0,
+      totalContributors: parseInt(result.rows[1].total_contributors) || 0,
+    };
+
+    const calculateChange = (current: number, previous: number): number => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous) * 100;
+    };
+
+    return {
+      ...currentWeek,
+      emailsChange: calculateChange(currentWeek.totalEmails, previousWeek.totalEmails),
+      patchesChange: calculateChange(currentWeek.totalPatches, previousWeek.totalPatches),
+      contributorsChange: calculateChange(currentWeek.totalContributors, previousWeek.totalContributors),
+    };
+  }
+
+  return currentWeek;
 }
