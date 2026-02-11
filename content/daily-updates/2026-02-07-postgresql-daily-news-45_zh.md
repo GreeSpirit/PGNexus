@@ -91,10 +91,8 @@ andres@anarazel.de, boekewurm+postgres@gmail.com, hlinnaka@iki.fi, melanieplagem
 ### **[It just got easier for Claude to check in on your WordPress site](https://techcrunch.com/2026/02/06/it-just-got-easier-for-claude-to-check-in-on-your-wordpress-site?utm_campaign=daily_pm)**
 Anthropic通过将Claude与WordPress集成，扩展了Claude的功能，允许用户利用这个AI助手分析网站流量并访问内部网站指标。这种集成代表了AI在网站管理和分析方面的实际应用，使WordPress用户更容易通过对话式AI交互而不是传统仪表板界面来监控和了解其网站性能。
 
-### **[Looking at this TechCrunch newsletter content, I can identify several AI-related news items. Let me select the three most newsworthy ones:
-
-Maybe AI agents can be lawyers after all](https://techcrunch.com/2026/02/06/maybe-ai-agents-can-be-lawyers-after-all?utm_campaign=daily_pm)**
-本周AI能力取得重大进展，Anthropic发布的Opus 4.6打乱了代理AI排行榜，在法律任务方面表现出色。这一进步表明AI代理现在可能有能力处理复杂的法律工作，这标志着AI在执行之前被认为超出当前AI能力的专业任务方面取得了潜在突破。
-
 ### **[The backlash over OpenAI's decision to retire GPT-4o shows how dangerous AI companions can be](https://techcrunch.com/2026/02/06/the-backlash-over-openais-decision-to-retire-gpt-4o-shows-how-dangerous-ai-companions-can-be?utm_campaign=daily_pm)**
 OpenAI宣布停用GPT-4o引发了用户强烈的情感反应，突显了AI陪伴的心理危险。用户对这个AI模型表达了深度依恋，一些人描述它具有"存在感"和"温暖感"而不是感觉像代码。这种强烈反对揭示了AI系统如何与用户形成看似有意义的关系，引发了对情感依赖以及停用人们已经依恋的AI陪伴所产生心理影响的担忧。
+
+### **[Maybe AI Agents can be laywers after all](https://techcrunch.com/2026/02/06/maybe-ai-agents-can-be-lawyers-after-all?utm_campaign=daily_pm)**
+本周AI能力取得重大进展，Anthropic发布的Opus 4.6打乱了代理AI排行榜，在法律任务方面表现出色。这一进步表明AI代理现在可能有能力处理复杂的法律工作，这标志着AI在执行之前被认为超出当前AI能力的专业任务方面取得了潜在突破。
