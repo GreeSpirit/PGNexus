@@ -48,5 +48,11 @@ alvherre@alvh.no-ip.org, amitlangote09@gmail.com, andres@anarazel.de, daniel@yes
 
 ## **行业新闻**
 
-### **[Elon Musk暗示xAI的一系列离职是被迫的，而非主动的](https://techcrunch.com/2026/02/11/senior-engineers-including-co-founders-exit-xai-amid-controversy?utm_campaign=daily_pm)**
-至少有九名工程师，包括两名联合创始人，在过去一周内宣布离开xAI，引发了在线猜测，并在争议不断的情况下对Musk的AI公司的稳定性提出了质疑。这些离职发生在公司面临严格审查的时期，Elon Musk暗示这些离职是由公司主动发起的，而不是员工的自愿离职。这波高级人员离职潮对xAI来说是一个重大挑战，因为它继续在快速发展的人工智能领域中竞争。
+### **[Elon Musk 表示一连串 xAI 离职是被迫而非主动](https://techcrunch.com/2026/02/11/senior-engineers-including-co-founders-exit-xai-amid-controversy?utm_campaign=daily_pm)**
+至少九名工程师，包括两名联合创始人，在过去一周内宣布离开xAI，这引发了在线猜测并对Musk的AI公司的稳定性提出了质疑。这些离职发生在公司面临日益激烈争议的背景下。Musk暗示这些离职是由公司主动发起的，而不是员工的自愿离开。离职的时机和规模在AI行业引起了重大关注，因为xAI一直将自己定位为人工智能领域的主要竞争者。公司没有为人事变动提供详细解释，让行业观察者对这家Musk领导的企业内部动态和战略转变进行猜测。
+
+### **[前 Founders Fund 风投 Sam Blond 推出 AI 销售初创公司颠覆 Salesforce](https://techcrunch.com/2026/02/11/former-founders-fund-vc-sam-blond-launches-ai-sales-startup-to-upend-salesforce?utm_campaign=daily_pm)**
+前Founders Fund风险投资家Sam Blond推出了Monaco，这是一个AI原生的一体化CRM系统，旨在挑战Salesforce在销售软件市场的主导地位。这家初创公司已从隐身模式中出现，得到了包括Collison兄弟和Garry Tan在内的知名投资者的支持。Monaco将自己定位为一个集成的客户关系管理平台，利用人工智能能力提供全面的销售工具和功能。该公司代表了Blond从风险投资转向创业，专注于用AI驱动的创新颠覆已建立的CRM市场。这家初创公司的资金和高知名度投资者支持表明人们对其在企业软件领域与Salesforce等现有参与者竞争的潜力充满信心。
+
+### **[OpenAI 解散致力于"安全"和"可信"AI开发的使命对齐团队](https://techcrunch.com/2026/02/11/openai-disbands-mission-alignment-team-which-focused-on-safe-and-trustworthy-ai-development?utm_campaign=daily_pm)**
+OpenAI已经解散了其使命对齐团队，该团队负责确保公司的AI开发工作始终专注于安全和值得信赖的人工智能系统。该团队的负责人已被重新分配到OpenAI首席未来学家的新职位，而其他团队成员已在整个组织中重新分配。这种组织重组代表了OpenAI在其开发过程中处理AI安全和对齐问题方式的重大转变。解散专门的安全重点团队引发了对公司对负责任AI开发实践持续承诺的质疑。这一举措发生在AI安全和对齐仍然是行业关键关注点的时候，特别是在公司竞相开发更强大AI系统的背景下。这种重新分配暗示了OpenAI内部优先级和运营结构的潜在转变。
