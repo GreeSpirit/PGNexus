@@ -20,7 +20,12 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ DEFAULT NOW(),
 	telegram_secret VARCHAR(128) DEFAULT NULL,
 	telegram_status VARCHAR(32) DEFAULT 'inactive',
-	telegram_chatid BIGINT DEFAULT NULL
+	telegram_chatid BIGINT DEFAULT NULL,
+	bio VARCHAR(300) DEFAULT NULL,
+	country CHAR(2) DEFAULT NULL,
+	imgurl TEXT DEFAULT NULL,
+	organization VARCHAR(255),
+	position VARCHAR(255)
 );
 CREATE INDEX user_index ON users(telegram_secret);
 CREATE INDEX user_index2 ON users(telegram_chatid);
@@ -97,6 +102,21 @@ CREATE TABLE IF NOT EXISTS email_feeds (
 CREATE INDEX email_feeds_index ON email_feeds(jobid);
 CREATE UNIQUE INDEX email_feeds_index2 ON email_feeds(jobid, threadId);
 
+-- Email Feeds (Hacker Discussions - PostgreSQL Mailing Lists)
+CREATE TABLE IF NOT EXISTS patch_reports (
+        jobid                   BIGINT REFERENCES poll_jobs(jobid),
+        threadId                TEXT NOT NULL,
+		messageId				TEXT NOT NULL,
+		patchFile				TEXT NOT NULL,
+		summary					TEXT,
+		summary_zh				TEXT,
+        risk					TEXT,
+		risk_zh					TEXT,
+		details					TEXT
+);
+CREATE INDEX patch_reports_index ON patch_reports(jobid);
+CREATE UNIQUE INDEX patch_reports_index2 ON patch_reports(jobid, threadId, patchFile);
+
 -- News Feeds (Industry News)
 CREATE TABLE IF NOT EXISTS news_feeds (
         jobid                   BIGINT REFERENCES poll_jobs(jobid),
@@ -149,6 +169,22 @@ CREATE TABLE IF NOT EXISTS weekly_email_stats (
 );
 CREATE INDEX weekly_email_stats_index ON weekly_email_stats(day);
 CREATE UNIQUE INDEX weekly_email_stats_index2 on weekly_email_stats(day, type);
+
+CREATE TABLE IF NOT EXISTS user_reviews (
+  id           BIGSERIAL PRIMARY KEY,
+  user_id      INTEGER NOT NULL REFERENCES users(id),
+  target_type  VARCHAR(32) NOT NULL,   -- e.g. 'post', 'email', 'pgnexus'
+  target_identifier TEXT DEFAULT NULL,
+  rating       SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  title        VARCHAR(120) DEFAULT NULL,
+  body         TEXT DEFAULT NULL,
+  status       VARCHAR(16) NOT NULL DEFAULT 'published'
+               CHECK (status IN ('published','deleted')),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS user_reviews_user_id_idx ON user_reviews(user_id);
+CREATE INDEX IF NOT EXISTS user_reviews_target_idx ON user_reviews(target_type);
 
 -- =====================================================
 -- 3. COMMENTS FOR DOCUMENTATION
