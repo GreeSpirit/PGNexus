@@ -20,9 +20,11 @@ export function TopDiscussionSubjects({ subjects, maxJobId }: TopDiscussionSubje
 
   return (
     <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-6">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-        {t(trans.homePage.topDiscussionSubjects)}
-      </h3>
+      <Link href="/hacker-discussions" className="block mb-6">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer">
+          {t(trans.homePage.topDiscussionSubjects)}
+        </h3>
+      </Link>
       <div className="space-y-4">
         {subjects.map((subject, index) => {
           // Choose subject based on current language, fallback to English if Chinese is not available
