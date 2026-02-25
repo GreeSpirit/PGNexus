@@ -292,9 +292,12 @@ export const translations = {
 
     // Subscribe
     subscribeTitle: { en: "Stay Updated", zh: "保持更新" },
+    subscribeSubtitlebyFirst: { en: "Curated PostgreSQL tech blogs and discussions, stay updated with community trends", zh: "精选 PostgreSQL 技术博客和讨论，及时了解社区动态" },
     subscribeSubtitle: { en: "Get the latest PostgreSQL news and insights delivered to your inbox", zh: "将最新的 PostgreSQL 新闻和见解直接发送到您的收件箱" },
     subscribeButton: { en: "Subscribe to Updates", zh: "订阅更新" },
     emailPlaceholder: { en: "Enter your email", zh: "输入您的电子邮件" },
+    daySubscribeButton: { en: "Daily Digest", zh: "每日摘要" },
+    weekSubscribeButton: { en: "Weekly Digest", zh: "每周摘要" },
 
     // Testimonials
     testimonialsTitle: { en: "What Our Community Says", zh: "社区评价" },
