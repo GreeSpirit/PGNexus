@@ -247,7 +247,6 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
           <WeeklyEmailChart />
           <TopDiscussionSubjects subjects={topSubjects} maxJobId={maxJobId} />
         </div>
-
         {/* Discussion Cards */}
         <div className="space-y-4">
           {emailFeeds.slice(0, 3).map((feed) => {
@@ -255,7 +254,7 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
             const displayTitle = language === "zh" && feed.title_zh ? feed.title_zh : feed.title;
             const summary = language === "en" ? feed.summary_english : feed.summary_chinese;
             const CardContent = () => (
-              <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all hover:scale-[1.01] cursor-pointer">
+              <div className="mb-4 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all hover:scale-[1.01] cursor-pointer">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
                     <MessageCircle className="h-6 w-6 text-white" />
@@ -302,7 +301,6 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
           })}
         </div>
       </div>
-
       {/* Industry News */}
       <FeedCardWidget
         feeds={newsFeeds}

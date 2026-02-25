@@ -4,8 +4,11 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translations as trans } from "@/lib/translations";
 
 export default function LoginPage() {
+  const { t, language } = useLanguage();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,9 +47,11 @@ export default function LoginPage() {
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             PGNexus
           </h1>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Welcome back</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            {t(trans.login.welcome)}
+          </h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Sign in to your account
+            {t(trans.login.desc)}
           </p>
         </div>
 
@@ -58,7 +63,7 @@ export default function LoginPage() {
                   htmlFor="email"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Email
+                  {t(trans.login.email)}
                 </label>
                 <input
                   id="email"
@@ -78,7 +83,7 @@ export default function LoginPage() {
                   htmlFor="password"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Password
+                  {t(trans.login.password)}
                 </label>
                 <input
                   id="password"
@@ -105,16 +110,16 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? t(trans.login.signingIn) : t(trans.login.signIn)}
             </button>
 
             <p className="text-center text-sm text-slate-600 dark:text-slate-400">
-              Don&apos;t have an account?{" "}
+              {t(trans.login.forget)}
               <Link
                 href="/signup"
                 className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
-                Sign up
+                {t(trans.login.signUp)}
               </Link>
             </p>
           </form>

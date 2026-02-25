@@ -6,10 +6,22 @@
  *        Then use with: useLanguage().t(t.nav.home)
  */
 
+import Email from "next-auth/providers/email";
+
 export const translations = {
   // ========================================
   // Navigation
   // ========================================
+  login: {
+    welcome: { en: "Welcome back", zh: "欢迎回来" },
+    desc: { en: "Sign in to your account", zh: "登录您的账号" },
+    email: { en: "Email", zh: "邮箱" },
+    password: { en: "Password", zh: "密码" },
+    signIn: { en: "Sign In", zh: "登录" },
+    signingIn: { en: "Signing in...", zh: "登录中..." },
+    signUp: { en: "Sign Up", zh: "注册" },
+    forget: { en: "Don't have an account? ", zh: "还没有账号？" },
+  },
   nav: {
     home: { en: "Home", zh: "首页" },
     discover: { en: "Discover", zh: "发现" },
@@ -62,6 +74,16 @@ export const translations = {
     rememberMe: { en: "Remember me", zh: "记住我" },
     noAccount: { en: "Don't have an account?", zh: "还没有账号？" },
     haveAccount: { en: "Already have an account?", zh: "已有账号？" },
+    name: { en: "Name", zh: "姓名" },
+    nameOptional: { en: "Name (optional)", zh: "姓名（可选）" },
+    namePlaceholder: { en: "John Doe", zh: "张三" },
+    emailPlaceholder: { en: "you@example.com", zh: "您的邮箱地址" },
+    passwordPlaceholder: { en: "••••••••", zh: "••••••••" },
+    passwordMinLength: { en: "Must be at least 6 characters", zh: "至少6个字符" },
+    createAccount: { en: "Create account", zh: "创建账号" },
+    creatingAccount: { en: "Creating account...", zh: "正在创建账号..." },
+    getStarted: { en: "Get started with PGNexus today", zh: "立即开始使用 PGNexus" },
+    signInLink: { en: "Sign in", zh: "登录" },
   },
 
   // ========================================
