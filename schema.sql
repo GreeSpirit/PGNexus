@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS weekly_email_stats (
 CREATE INDEX weekly_email_stats_index ON weekly_email_stats(day);
 CREATE UNIQUE INDEX weekly_email_stats_index2 on weekly_email_stats(day, type);
 
+
 CREATE TABLE IF NOT EXISTS user_reviews (
   id           BIGSERIAL PRIMARY KEY,
   user_id      INTEGER NOT NULL REFERENCES users(id),
@@ -185,6 +186,40 @@ CREATE TABLE IF NOT EXISTS user_reviews (
 );
 CREATE INDEX IF NOT EXISTS user_reviews_user_id_idx ON user_reviews(user_id);
 CREATE INDEX IF NOT EXISTS user_reviews_target_idx ON user_reviews(target_type);
+
+CREATE TABLE IF NOT EXISTS email_records (
+  id           BIGSERIAL PRIMARY KEY,
+  day          DATE NOT NULL,
+  type         VARCHAR(32) NOT NULL, -- e.g. daily, weekly
+  jobid		   BIGINT DEFAULT 0, -- weekly email does not have jobid
+  subject      VARCHAR(255) DEFAULT NULL,
+  body         TEXT DEFAULT NULL,
+  sent_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX email_records_index on email_records(day, type);
+
+-- Social Feeds (social media accounts)
+CREATE TABLE IF NOT EXISTS social_feeds (
+        jobid                   BIGINT REFERENCES poll_jobs(jobid),
+		platform				VARCHAR(255) NOT NULL,
+        title                   TEXT NOT NULL,
+        title_zh                TEXT,
+        url                     TEXT NOT NULL,
+        imgurl                  TEXT DEFAULT NULL,
+        author                  TEXT NOT NULL,
+		author_imgurl			TEXT DEFAULT NULL,
+        pubdate                 TIMESTAMPTZ NOT NULL,
+		likes					BIGINT DEFAULT 0,
+		comments				BIGINT DEFAULT 0,
+		mediaurl				TEXT,
+        content                 TEXT,
+        snippet                 TEXT,
+        summary                 TEXT,
+        summary_zh              TEXT
+);
+CREATE INDEX social_feeds_index ON social_feeds(jobid);
+CREATE UNIQUE INDEX social_feeds_index2 ON social_feeds(jobid, title);
+
 
 -- =====================================================
 -- 3. COMMENTS FOR DOCUMENTATION
