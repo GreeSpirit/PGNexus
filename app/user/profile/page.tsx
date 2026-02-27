@@ -376,7 +376,6 @@ function UserProfileContent() {
                             value={country}
                             onChange={(e) => setCountry(e.target.value)}
                             className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                            placeholder={t(trans.userProfile.countryPlaceholder)}
                           >
                             <option value="">{t(trans.userProfile.countryPlaceholder)}</option>
                             {countries.map((countryOption) => (
