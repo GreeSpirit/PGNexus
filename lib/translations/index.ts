@@ -497,6 +497,23 @@ export const translations = {
     scanQrCode: { en: "Or scan this QR code", zh: "或扫描此二维码" },
     generating: { en: "Generating...", zh: "生成中..." },
     loading: { en: "Loading...", zh: "加载中..." },
+    
+    // Complete Profile
+    completeProfile: { en: "Complete Your Profile", zh: "完成您的个人资料" },
+    completeProfileDescription: { en: "Enhance your PGNexus experience by adding more details about yourself.", zh: "通过添加更多个人信息来增强您的 PGNexus 体验。" },
+    bio: { en: "Bio", zh: "简介" },
+    bioPlaceholder: { en: "Tell us a little about yourself...", zh: "告诉我们一些关于您自己的信息..." },
+    company: { en: "Company", zh: "公司" },
+    companyPlaceholder: { en: "Your company name", zh: "您的公司名称" },
+    jobTitle: { en: "Job Title", zh: "职位" },
+    jobTitlePlaceholder: { en: "Your job title", zh: "您的职位" },
+    country: { en: "Country/Region", zh: "国家/地区" },
+    countryPlaceholder: { en: "Select your country/region", zh: "选择您的国家/地区" },
+    avatar: { en: "Avatar", zh: "头像" },
+    uploadAvatar: { en: "Upload Avatar", zh: "上传头像" },
+    saveProfile: { en: "Save Profile", zh: "保存个人资料" },
+    profileSaved: { en: "Profile saved successfully!", zh: "个人资料保存成功！" },
+    saveChanges: { en: "Save Changes", zh: "保存更改" },
   },
 } as const;
 
