@@ -429,6 +429,7 @@ export const translations = {
     profile: { en: "Profile", zh: "个人资料" },
     subscriptions: { en: "Your Subscriptions", zh: "您的订阅" },
     botAccess: { en: "Bot Access", zh: "机器人访问" },
+    suggestArticle: { en: "Suggest an Article", zh: "推荐文章" },
     userMenu: { en: "User Menu", zh: "用户菜单" },
 
     // Dashboard
@@ -514,6 +515,60 @@ export const translations = {
     saveProfile: { en: "Save Profile", zh: "保存个人资料" },
     profileSaved: { en: "Profile saved successfully!", zh: "个人资料保存成功！" },
     saveChanges: { en: "Save Changes", zh: "保存更改" },
+  },
+  // ========================================
+  // Suggest Article Page
+  // ========================================
+  suggestArticle: {
+    title: { en: "Suggest an Article", zh: "推荐文章" },
+    description: {
+      en: "Know a great PostgreSQL article from X, LinkedIn, or WeChat? Share the URL and we'll review it for inclusion in PGNexus.",
+      zh: "发现了优质的 PostgreSQL 文章？来自 X、LinkedIn 或微信？请分享链接，我们将审核并考虑收录到 PGNexus。",
+    },
+    platformLabel: { en: "Platform", zh: "平台" },
+    platformPlaceholder: { en: "Select a platform", zh: "选择平台" },
+    urlLabel: { en: "Article URL", zh: "文章链接" },
+    urlPlaceholder: { en: "https://...", zh: "https://..." },
+    submitButton: { en: "Submit", zh: "提交" },
+    submitting: { en: "Submitting...", zh: "提交中..." },
+
+    // Platforms
+    platformX: { en: "X (Twitter)", zh: "X (推特)" },
+    platformLinkedIn: { en: "LinkedIn", zh: "领英" },
+    platformWechat: { en: "WeChat", zh: "微信" },
+
+    // Validation errors
+    errorSelectPlatform: { en: "Please select a platform.", zh: "请选择平台。" },
+    errorEnterUrl: { en: "Please enter a URL.", zh: "请输入链接。" },
+    errorInvalidUrlX: {
+      en: "X posts must start with https://x.com",
+      zh: "X 帖子链接必须以 https://x.com 开头",
+    },
+    errorInvalidUrlLinkedIn: {
+      en: "LinkedIn posts must start with https://linkedin.com",
+      zh: "LinkedIn 帖子链接必须以 https://linkedin.com 开头",
+    },
+    errorInvalidUrlWechat: {
+      en: "WeChat articles must start with https://mp.weixin.qq.com/",
+      zh: "微信文章链接必须以 https://mp.weixin.qq.com/ 开头",
+    },
+
+    // Success / error messages
+    submitSuccess: { en: "Article submitted successfully! We'll review it soon.", zh: "文章提交成功！我们将尽快审核。" },
+    submitError: { en: "Failed to submit. Please try again.", zh: "提交失败，请重试。" },
+    duplicateError: { en: "This URL has already been submitted.", zh: "该链接已被提交过。" },
+
+    // History table
+    historyTitle: { en: "Your Submissions", zh: "您的提交记录" },
+    historyEmpty: { en: "You haven't submitted any articles yet.", zh: "您尚未提交任何文章。" },
+    colPlatform: { en: "Platform", zh: "平台" },
+    colUrl: { en: "URL", zh: "链接" },
+    colStatus: { en: "Status", zh: "状态" },
+
+    // Status badges
+    statusPending: { en: "Pending", zh: "待审核" },
+    statusApproved: { en: "Approved", zh: "已通过" },
+    statusRejected: { en: "Rejected", zh: "已拒绝" },
   },
 } as const;
 

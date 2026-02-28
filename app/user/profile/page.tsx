@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useCallback, Suspense } from "react";
-import { User, Bell, Bot, LayoutDashboard, Save, Eye, EyeOff, Copy, RefreshCw, ExternalLink } from "lucide-react";
+import { User, Bell, Bot, LayoutDashboard, Save, Eye, EyeOff, Copy, RefreshCw, ExternalLink, Lightbulb, ExternalLink as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -17,8 +17,8 @@ function UserProfileContent() {
   const searchParams = useSearchParams();
 
   // Get tab from URL, default to dashboard
-  const tabFromUrl = (searchParams.get("tab") as "dashboard" | "profile" | "subscriptions" | "bot") || "dashboard";
-  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "subscriptions" | "bot">(tabFromUrl);
+  const tabFromUrl = (searchParams.get("tab") as "dashboard" | "profile" | "subscriptions" | "bot" | "suggest") || "dashboard";
+  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "subscriptions" | "bot" | "suggest">(tabFromUrl);
 
   const [name, setName] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -36,11 +36,35 @@ function UserProfileContent() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
+  // Suggest Article states
+  const [suggestPlatform, setSuggestPlatform] = useState<"x" | "linkedin" | "wechat" | "">("");
+  const [suggestUrl, setSuggestUrl] = useState("");
+  const [suggestSubmitting, setSuggestSubmitting] = useState(false);
+  const [suggestMessage, setSuggestMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [suggestHistory, setSuggestHistory] = useState<{ id: number; platform: string; url: string; status: string }[]>([]);
+  const [suggestHistoryLoading, setSuggestHistoryLoading] = useState(false);
+
   // Bot Access states
   const [telegramSecret, setTelegramSecret] = useState<string | null>(null);
   const [showSecret, setShowSecret] = useState(false);
   const [isLoadingSecret, setIsLoadingSecret] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Fetch suggest article history
+  const fetchSuggestHistory = useCallback(async () => {
+    setSuggestHistoryLoading(true);
+    try {
+      const response = await fetch("/api/user/suggest-article");
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestHistory(data.submissions || []);
+      }
+    } catch (error) {
+      console.error("Error fetching suggestion history:", error);
+    } finally {
+      setSuggestHistoryLoading(false);
+    }
+  }, []);
 
   // Fetch telegram secret function - DEFINE BEFORE ANY RETURNS
   const fetchTelegramSecret = useCallback(async () => {
@@ -61,7 +85,7 @@ function UserProfileContent() {
   // ALL EFFECTS MUST BE BEFORE ANY CONDITIONAL RETURNS
   // Update active tab when URL changes
   useEffect(() => {
-    const urlTab = searchParams.get("tab") as "dashboard" | "profile" | "subscriptions" | "bot";
+    const urlTab = searchParams.get("tab") as "dashboard" | "profile" | "subscriptions" | "bot" | "suggest";
     if (urlTab && urlTab !== activeTab) {
       setActiveTab(urlTab);
     } else if (!urlTab && activeTab !== "dashboard") {
@@ -103,6 +127,13 @@ function UserProfileContent() {
     }
   }, [activeTab, session, fetchTelegramSecret]);
 
+  // Fetch suggest history when suggest tab is active
+  useEffect(() => {
+    if (activeTab === "suggest" && session?.user) {
+      fetchSuggestHistory();
+    }
+  }, [activeTab, session, fetchSuggestHistory]);
+
   // NOW WE CAN HAVE CONDITIONAL RETURNS
   // Show loading state
   if (status === "loading" && !loadingTimeout) {
@@ -137,10 +168,11 @@ function UserProfileContent() {
     { id: "profile" as const, label: t(trans.userProfile.profile), icon: User },
     { id: "subscriptions" as const, label: t(trans.userProfile.subscriptions), icon: Bell },
     { id: "bot" as const, label: t(trans.userProfile.botAccess), icon: Bot },
+    { id: "suggest" as const, label: t(trans.userProfile.suggestArticle), icon: Lightbulb },
   ];
 
   // Handle tab change - update URL
-  const handleTabChange = (tab: "dashboard" | "profile" | "subscriptions" | "bot") => {
+  const handleTabChange = (tab: "dashboard" | "profile" | "subscriptions" | "bot" | "suggest") => {
     setActiveTab(tab);
     router.push(`/user/profile?tab=${tab}`, { scroll: false });
   };
@@ -240,6 +272,65 @@ function UserProfileContent() {
     { code: "BR", name: "Brazil" },
   ];
 
+  const handleSuggestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuggestMessage(null);
+
+    if (!suggestPlatform) {
+      setSuggestMessage({ type: "error", text: t(trans.suggestArticle.errorSelectPlatform) });
+      return;
+    }
+    if (!suggestUrl.trim()) {
+      setSuggestMessage({ type: "error", text: t(trans.suggestArticle.errorEnterUrl) });
+      return;
+    }
+
+    const prefixes: Record<string, string> = {
+      x: "https://x.com",
+      linkedin: "https://linkedin.com",
+      wechat: "https://mp.weixin.qq.com/",
+    };
+    const errorKeys: Record<string, { en: string; zh: string }> = {
+      x: trans.suggestArticle.errorInvalidUrlX,
+      linkedin: trans.suggestArticle.errorInvalidUrlLinkedIn,
+      wechat: trans.suggestArticle.errorInvalidUrlWechat,
+    };
+
+    if (!suggestUrl.startsWith(prefixes[suggestPlatform])) {
+      setSuggestMessage({ type: "error", text: t(errorKeys[suggestPlatform]) });
+      return;
+    }
+
+    setSuggestSubmitting(true);
+    try {
+      const response = await fetch("/api/user/suggest-article", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform: suggestPlatform, url: suggestUrl.trim() }),
+      });
+
+      if (response.status === 409) {
+        setSuggestMessage({ type: "error", text: t(trans.suggestArticle.duplicateError) });
+        return;
+      }
+
+      if (!response.ok) {
+        setSuggestMessage({ type: "error", text: t(trans.suggestArticle.submitError) });
+        return;
+      }
+
+      const data = await response.json();
+      setSuggestHistory((prev) => [data.submission, ...prev]);
+      setSuggestUrl("");
+      setSuggestPlatform("");
+      setSuggestMessage({ type: "success", text: t(trans.suggestArticle.submitSuccess) });
+    } catch (error) {
+      console.error("Error submitting article:", error);
+      setSuggestMessage({ type: "error", text: t(trans.suggestArticle.submitError) });
+    } finally {
+      setSuggestSubmitting(false);
+    }
+  };
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-12rem)]">
@@ -811,6 +902,166 @@ function UserProfileContent() {
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+            {/* Suggest Article Tab */}
+            {activeTab === "suggest" && (
+              <div className="max-w-3xl">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">
+                  {t(trans.suggestArticle.title)}
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 mb-8">
+                  {t(trans.suggestArticle.description)}
+                </p>
+
+                {/* Submission Form */}
+                <div className="mb-10 p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <form onSubmit={handleSuggestSubmit} className="space-y-5">
+                    {/* Platform */}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t(trans.suggestArticle.platformLabel)}
+                      </label>
+                      <select
+                        value={suggestPlatform}
+                        onChange={(e) => {
+                          setSuggestPlatform(e.target.value as "x" | "linkedin" | "wechat" | "");
+                          setSuggestMessage(null);
+                        }}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">{t(trans.suggestArticle.platformPlaceholder)}</option>
+                        <option value="x">{t(trans.suggestArticle.platformX)}</option>
+                        <option value="linkedin">{t(trans.suggestArticle.platformLinkedIn)}</option>
+                        <option value="wechat">{t(trans.suggestArticle.platformWechat)}</option>
+                      </select>
+                    </div>
+
+                    {/* URL */}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t(trans.suggestArticle.urlLabel)}
+                      </label>
+                      <Input
+                        type="url"
+                        value={suggestUrl}
+                        onChange={(e) => {
+                          setSuggestUrl(e.target.value);
+                          setSuggestMessage(null);
+                        }}
+                        placeholder={t(trans.suggestArticle.urlPlaceholder)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Feedback message */}
+                    {suggestMessage && (
+                      <p
+                        className={`text-sm font-medium ${
+                          suggestMessage.type === "success"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {suggestMessage.text}
+                      </p>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={suggestSubmitting}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                    >
+                      <Lightbulb className="h-4 w-4 mr-2" />
+                      {suggestSubmitting
+                        ? t(trans.suggestArticle.submitting)
+                        : t(trans.suggestArticle.submitButton)}
+                    </Button>
+                  </form>
+                </div>
+
+                {/* Submission History */}
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    {t(trans.suggestArticle.historyTitle)}
+                  </h3>
+
+                  {suggestHistoryLoading ? (
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                      {t(trans.common.loading)}
+                    </p>
+                  ) : suggestHistory.length === 0 ? (
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                      {t(trans.suggestArticle.historyEmpty)}
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-left">
+                            <th className="px-4 py-3 font-medium w-32">{t(trans.suggestArticle.colPlatform)}</th>
+                            <th className="px-4 py-3 font-medium">{t(trans.suggestArticle.colUrl)}</th>
+                            <th className="px-4 py-3 font-medium w-28">{t(trans.suggestArticle.colStatus)}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                          {suggestHistory.map((item) => {
+                            const platformLabels: Record<string, { en: string; zh: string }> = {
+                              x: trans.suggestArticle.platformX,
+                              linkedin: trans.suggestArticle.platformLinkedIn,
+                              wechat: trans.suggestArticle.platformWechat,
+                            };
+                            const statusLabels: Record<string, { en: string; zh: string }> = {
+                              pending: trans.suggestArticle.statusPending,
+                              approved: trans.suggestArticle.statusApproved,
+                              rejected: trans.suggestArticle.statusRejected,
+                            };
+                            const statusColors: Record<string, string> = {
+                              pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+                              approved: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                              rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+                            };
+
+                            return (
+                              <tr
+                                key={item.id}
+                                className="bg-white dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                              >
+                                <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">
+                                  {platformLabels[item.platform]
+                                    ? t(platformLabels[item.platform])
+                                    : item.platform}
+                                </td>
+                                <td className="px-4 py-3 text-slate-600 dark:text-slate-400 max-w-xs">
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 truncate"
+                                  >
+                                    <span className="truncate">{item.url}</span>
+                                    <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                                  </a>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span
+                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      statusColors[item.status] || "bg-slate-100 text-slate-600"
+                                    }`}
+                                  >
+                                    {statusLabels[item.status]
+                                      ? t(statusLabels[item.status])
+                                      : item.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

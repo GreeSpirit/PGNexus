@@ -220,6 +220,17 @@ CREATE TABLE IF NOT EXISTS social_feeds (
 CREATE INDEX social_feeds_index ON social_feeds(jobid);
 CREATE UNIQUE INDEX social_feeds_index2 ON social_feeds(jobid, title);
 
+-- Social sources submitted by users
+CREATE TABLE IF NOT EXISTS social_sources (
+		id						BIGSERIAL PRIMARY KEY,
+		userid					INT REFERENCES users(id),
+        platform                VARCHAR(255) NOT NULL,
+        url                     TEXT NOT NULL,
+		status					VARCHAR(128) NOT NULL
+);
+CREATE INDEX social_sources_index ON social_sources(userid);
+CREATE INDEX social_sources_index2 ON social_sources(platform);
+CREATE INDEX social_sources_index3 ON social_sources(status);
 
 -- =====================================================
 -- 3. COMMENTS FOR DOCUMENTATION
