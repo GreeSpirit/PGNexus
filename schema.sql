@@ -264,7 +264,9 @@ CREATE TABLE IF NOT EXISTS social_feeds (
         content                 TEXT,
         snippet                 TEXT,
         summary                 TEXT,
-        summary_zh              TEXT
+        summary_zh              TEXT,
+		fromuser				boolean default false,
+		shared					boolean default false
 );
 CREATE INDEX social_feeds_index ON social_feeds(jobid);
 CREATE UNIQUE INDEX social_feeds_index2 ON social_feeds(jobid, title);
