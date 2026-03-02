@@ -31,6 +31,55 @@ CREATE INDEX user_index ON users(telegram_secret);
 CREATE INDEX user_index2 ON users(telegram_chatid);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
+-- pgnexus role catalog
+CREATE TABLE IF NOT EXISTS roles (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(64) NOT NULL UNIQUE,          -- e.g. 'admin', 'editor', 'member'
+  description VARCHAR(255) DEFAULT NULL,
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,  -- protect built-in roles
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Optional seed roles
+INSERT INTO roles(name, description, is_system)
+VALUES
+  ('admin','Full access', true),
+  ('staff','Internal staff', true),
+  ('member','Standard user', true)
+ON CONFLICT (name) DO NOTHING;
+
+-- user roles
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+  granted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  granted_by INTEGER NULL REFERENCES users(id) ON DELETE SET NULL,
+  PRIMARY KEY (user_id, role_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
+
+-- add default admin user
+-- Enable pgcrypto (safe to run if already installed)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Insert admin user with bcrypt-hashed password
+INSERT INTO users (name, email, password_hash)
+VALUES (
+  'admin',
+  'admin@pgnexus.ai',
+  crypt('pgnexusadminpassword', gen_salt('bf', 10))
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- Assign admin role
+INSERT INTO user_roles (user_id, role_id)
+  SELECT u.id, r.id
+  FROM users u
+  JOIN roles r ON r.name = 'admin'
+  WHERE u.email = 'admin@pgnexus.ai'
+ON CONFLICT (user_id, role_id) DO NOTHING;
+
 -- Create user_subscriptions table
 CREATE TABLE IF NOT EXISTS user_subscriptions (
     id SERIAL PRIMARY KEY,
