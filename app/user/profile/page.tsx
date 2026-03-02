@@ -10,6 +10,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
 import Image from "next/image";
 
+
 function UserProfileContent() {
   const { data: session, status } = useSession();
   const { t } = useLanguage();
@@ -21,20 +22,17 @@ function UserProfileContent() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "subscriptions" | "bot" | "suggest">(tabFromUrl);
 
   const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [country, setCountry] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [position, setPosition] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [profileUpdateSuccess, setProfileUpdateSuccess] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
-  
-  // Profile completion states
-  const [bio, setBio] = useState("");
-  const [company, setCompany] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
-  const [country, setCountry] = useState("");
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
 
   // Suggest Article states
   const [suggestPlatform, setSuggestPlatform] = useState<"x" | "linkedin" | "wechat" | "">("");
@@ -66,6 +64,23 @@ function UserProfileContent() {
     }
   }, []);
 
+  // Fetch profile data
+  const fetchProfile = useCallback(async () => {
+    try {
+      const response = await fetch("/api/user/profile");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.name) setName(data.name);
+        setBio(data.bio || "");
+        setCountry(data.country || "");
+        setOrganization(data.organization || "");
+        setPosition(data.position || "");
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  }, []);
+
   // Fetch telegram secret function - DEFINE BEFORE ANY RETURNS
   const fetchTelegramSecret = useCallback(async () => {
     setIsLoadingSecret(true);
@@ -93,12 +108,12 @@ function UserProfileContent() {
     }
   }, [searchParams, activeTab]);
 
-  // Update name when session loads
+  // Fetch full profile when session is ready
   useEffect(() => {
-    if (session?.user?.name) {
-      setName(session.user.name);
+    if (session?.user) {
+      fetchProfile();
     }
-  }, [session?.user?.name]);
+  }, [session?.user, fetchProfile]);
 
   // Handle redirect if not authenticated
   useEffect(() => {
@@ -177,14 +192,34 @@ function UserProfileContent() {
     router.push(`/user/profile?tab=${tab}`, { scroll: false });
   };
 
-  const handleUpdateName = async (e: React.FormEvent) => {
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatar(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUpdating(true);
-    // TODO: Implement API call to update name
-    setTimeout(() => {
-      alert("Name update functionality will be implemented soon!");
+    try {
+      const response = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, bio, country, organization, position }),
+      });
+      if (response.ok) {
+        setProfileUpdateSuccess(true);
+        setTimeout(() => setProfileUpdateSuccess(false), 3000);
+      } else {
+        alert("Failed to update profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    } finally {
       setIsUpdating(false);
-    }, 1000);
+    }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -237,40 +272,6 @@ function UserProfileContent() {
   const maskSecret = (secret: string) => {
     return "*".repeat(secret.length);
   };
-
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsUpdating(true);
-    // TODO: Implement API call to save profile
-    setTimeout(() => {
-      setProfileSaved(true);
-      setIsUpdating(false);
-      setTimeout(() => setProfileSaved(false), 3000);
-    }, 1000);
-  };
-
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // TODO: Implement file upload
-      // For now, just simulate a successful upload
-      setAvatar(URL.createObjectURL(file));
-    }
-  };
-
-  // ISO-3166 country codes and names
-  const countries = [
-    { code: "CN", name: "China" },
-    { code: "US", name: "United States" },
-    { code: "GB", name: "United Kingdom" },
-    { code: "JP", name: "Japan" },
-    { code: "DE", name: "Germany" },
-    { code: "FR", name: "France" },
-    { code: "CA", name: "Canada" },
-    { code: "AU", name: "Australia" },
-    { code: "IN", name: "India" },
-    { code: "BR", name: "Brazil" },
-  ];
 
   const handleSuggestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -373,19 +374,9 @@ function UserProfileContent() {
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        {avatar ? (
-                          <Image
-                            src={avatar}
-                            alt="User Avatar"
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 rounded-full object-cover shadow-lg border-2 border-white dark:border-slate-800"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-2 border-white dark:border-slate-800">
-                            {userName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-2 border-white dark:border-slate-800">
+                          {userName.charAt(0).toUpperCase()}
+                        </div>
                       </div>
                       <div>
                         <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-1">
@@ -398,186 +389,31 @@ function UserProfileContent() {
                     </div>
                     <div>
                       <Button
-                        onClick={() => setIsEditingProfile(!isEditingProfile)}
+                        onClick={() => handleTabChange("profile")}
                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                       >
-                        {isEditingProfile ? t(trans.common.cancel) : t(trans.userProfile.completeProfile)}
+                        {t(trans.userProfile.completeProfile)}
                       </Button>
                     </div>
                   </div>
                 </div>
                 
-                {profileSaved && (
-                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 font-medium">
-                    {t(trans.userProfile.profileSaved)}
-                  </div>
-                )}
-                
-                {isEditingProfile ? (
-                  <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-lg p-6 mb-8">
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6">
-                      {t(trans.userProfile.completeProfile)}
-                    </h2>
-                    <p className="text-slate-600 dark:text-slate-400 mb-6">
-                      {t(trans.userProfile.completeProfileDescription)}
-                    </p>
-                    <form onSubmit={handleSaveProfile} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            {t(trans.userProfile.name)}
-                          </label>
-                          <Input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder={t(trans.userProfile.namePlaceholder)}
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            {t(trans.userProfile.jobTitle)}
-                          </label>
-                          <Input
-                            type="text"
-                            value={jobTitle}
-                            onChange={(e) => setJobTitle(e.target.value)}
-                            placeholder={t(trans.userProfile.jobTitlePlaceholder)}
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            {t(trans.userProfile.company)}
-                          </label>
-                          <Input
-                            type="text"
-                            value={company}
-                            onChange={(e) => setCompany(e.target.value)}
-                            placeholder={t(trans.userProfile.companyPlaceholder)}
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            {t(trans.userProfile.country)}
-                          </label>
-                          <select
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                          >
-                            <option value="">{t(trans.userProfile.countryPlaceholder)}</option>
-                            {countries.map((countryOption) => (
-                              <option key={countryOption.code} value={countryOption.code}>
-                                {countryOption.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          {t(trans.userProfile.bio)}
-                        </label>
-                        <textarea
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                          placeholder={t(trans.userProfile.bioPlaceholder)}
-                          rows={4}
-                          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          {t(trans.userProfile.avatar)}
-                        </label>
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-slate-700">
-                            {avatar ? (
-                              <Image
-                                src={avatar}
-                                alt="Avatar Preview"
-                                width={64}
-                                height={64}
-                                className="object-cover"
-                              />
-                            ) : (
-                              <User className="h-8 w-8 text-slate-400" />
-                            )}
-                          </div>
-                          <div>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleAvatarUpload}
-                              className="hidden"
-                              id="avatar-upload"
-                            />
-                            <label
-                              htmlFor="avatar-upload"
-                              className="inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-all"
-                            >
-                              {t(trans.userProfile.uploadAvatar)}
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-4">
-                        <Button
-                          type="submit"
-                          disabled={isUpdating}
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                        >
-                          <Save className="h-4 w-4 mr-2" />
-                          {isUpdating ? t(trans.userProfile.updating) : t(trans.userProfile.saveProfile)}
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => setIsEditingProfile(false)}
-                          variant="outline"
-                          className="px-6"
-                        >
-                          {t(trans.common.cancel)}
-                        </Button>
-                      </div>
-                    </form>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-lg p-6">
-                      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
-                        {t(trans.userProfile.completeProfile)}
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-400 mb-6">
-                        {t(trans.userProfile.completeProfileDescription)}
-                      </p>
-                      <Button
-                        onClick={() => setIsEditingProfile(true)}
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                      >
-                        {t(trans.userProfile.completeProfile)}
-                      </Button>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                    {t(trans.userProfile.dashboard)}
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-400 mb-6">
+                    {t(trans.userProfile.underConstruction)}
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500">
+                    <div className="animate-pulse flex gap-1">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div className="w-2 h-2 bg-indigo-600 rounded-full animation-delay-200"></div>
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animation-delay-400"></div>
                     </div>
-                    <div className="backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border border-slate-200/50 dark:border-slate-700/50 rounded-2xl shadow-lg p-6">
-                      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
-                        {t(trans.userProfile.dashboard)}
-                      </h2>
-                      <p className="text-slate-600 dark:text-slate-400 mb-4">
-                        {t(trans.userProfile.underConstruction)}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500">
-                        <div className="animate-pulse flex gap-1">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                          <div className="w-2 h-2 bg-indigo-600 rounded-full animation-delay-200"></div>
-                          <div className="w-2 h-2 bg-purple-600 rounded-full animation-delay-400"></div>
-                        </div>
-                        <span>{t(trans.userProfile.comingSoon)}</span>
-                      </div>
-                    </div>
+                    <span>{t(trans.userProfile.comingSoon)}</span>
                   </div>
-                )}
+                </div>
               </div>
             )}
 
@@ -588,35 +424,195 @@ function UserProfileContent() {
                   {t(trans.userProfile.profileSettings)}
                 </h2>
 
-                {/* Update Info Form */}
+                {/* Update Profile Form */}
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                  <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-6">
                     {t(trans.userProfile.updateInfo)}
                   </h3>
-                  <form onSubmit={handleUpdateName} className="space-y-4">
+
+                  {profileUpdateSuccess && (
+                    <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 font-medium">
+                      {t(trans.userProfile.profileUpdateSuccess)}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleUpdateProfile} className="space-y-6">
+                    {/* Avatar */}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                        {t(trans.userProfile.avatar)}
+                      </label>
+                      <div className="flex items-center gap-5">
+                        <div className="flex-shrink-0 w-20 h-20 rounded-full overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center border-2 border-slate-200 dark:border-slate-700 shadow">
+                          {avatar ? (
+                            <Image
+                              src={avatar}
+                              alt="Avatar preview"
+                              width={80}
+                              height={80}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-white text-3xl font-bold">
+                              {name ? name.charAt(0).toUpperCase() : session.user.email?.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                            id="avatar-upload"
+                          />
+                          <label
+                            htmlFor="avatar-upload"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-all"
+                          >
+                            <User className="h-4 w-4" />
+                            {t(trans.userProfile.uploadAvatar)}
+                          </label>
+                          {avatar && (
+                            <button
+                              type="button"
+                              onClick={() => setAvatar(null)}
+                              className="text-xs text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-left transition-colors"
+                            >
+                              Remove photo
+                            </button>
+                          )}
+                          <p className="text-xs text-slate-400 dark:text-slate-500">
+                            JPG, PNG or GIF.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Name + Email */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          {t(trans.userProfile.name)}
+                        </label>
+                        <Input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder={t(trans.userProfile.namePlaceholder)}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          {t(trans.userProfile.emailReadOnly)}
+                        </label>
+                        <Input
+                          type="email"
+                          value={session.user.email || ""}
+                          disabled
+                          className="w-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Organization + Position */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          {t(trans.userProfile.organization)}
+                        </label>
+                        <Input
+                          type="text"
+                          value={organization}
+                          onChange={(e) => setOrganization(e.target.value)}
+                          placeholder={t(trans.userProfile.organizationPlaceholder)}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          {t(trans.userProfile.position)}
+                        </label>
+                        <Input
+                          type="text"
+                          value={position}
+                          onChange={(e) => setPosition(e.target.value)}
+                          placeholder={t(trans.userProfile.positionPlaceholder)}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Country */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {t(trans.userProfile.name)}
+                        {t(trans.userProfile.country)}
                       </label>
-                      <Input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder={t(trans.userProfile.namePlaceholder)}
-                        className="w-full"
-                      />
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                      >
+                        <option value="">{t(trans.userProfile.countryPlaceholder)}</option>
+                        <option value="CN">China</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="KR">South Korea</option>
+                        <option value="IN">India</option>
+                        <option value="AU">Australia</option>
+                        <option value="CA">Canada</option>
+                        <option value="BR">Brazil</option>
+                        <option value="RU">Russia</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="SE">Sweden</option>
+                        <option value="NO">Norway</option>
+                        <option value="FI">Finland</option>
+                        <option value="DK">Denmark</option>
+                        <option value="CH">Switzerland</option>
+                        <option value="AT">Austria</option>
+                        <option value="PL">Poland</option>
+                        <option value="ES">Spain</option>
+                        <option value="IT">Italy</option>
+                        <option value="PT">Portugal</option>
+                        <option value="SG">Singapore</option>
+                        <option value="HK">Hong Kong</option>
+                        <option value="TW">Taiwan</option>
+                        <option value="ID">Indonesia</option>
+                        <option value="MY">Malaysia</option>
+                        <option value="TH">Thailand</option>
+                        <option value="VN">Vietnam</option>
+                        <option value="NZ">New Zealand</option>
+                        <option value="ZA">South Africa</option>
+                        <option value="NG">Nigeria</option>
+                        <option value="EG">Egypt</option>
+                        <option value="MX">Mexico</option>
+                        <option value="AR">Argentina</option>
+                        <option value="IL">Israel</option>
+                        <option value="TR">Turkey</option>
+                        <option value="SA">Saudi Arabia</option>
+                        <option value="AE">United Arab Emirates</option>
+                      </select>
                     </div>
+
+                    {/* Bio */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {t(trans.userProfile.emailReadOnly)}
+                        {t(trans.userProfile.bio)}
+                        <span className="ml-2 text-xs font-normal text-slate-400">({bio.length}/300)</span>
                       </label>
-                      <Input
-                        type="email"
-                        value={session.user.email || ""}
-                        disabled
-                        className="w-full bg-slate-100 dark:bg-slate-800"
+                      <textarea
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value.slice(0, 300))}
+                        placeholder={t(trans.userProfile.bioPlaceholder)}
+                        rows={4}
+                        className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all resize-none"
                       />
                     </div>
+
                     <Button
                       type="submit"
                       disabled={isUpdating}

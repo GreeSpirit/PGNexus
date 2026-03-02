@@ -439,12 +439,17 @@ export const translations = {
 
     // Profile Settings
     profileSettings: { en: "Profile Settings", zh: "个人资料设置" },
-    updateInfo: { en: "Update Info", zh: "更新信息" },
-    updateInfoButton: { en: "Update Info", zh: "更新信息" },
+    updateInfo: { en: "Update Profile", zh: "更新个人资料" },
+    updateInfoButton: { en: "Save Profile", zh: "保存个人资料" },
     name: { en: "Name", zh: "姓名" },
     namePlaceholder: { en: "Enter your name", zh: "输入您的姓名" },
     emailReadOnly: { en: "Email (read-only)", zh: "邮箱（只读）" },
     updating: { en: "Updating...", zh: "更新中..." },
+    organization: { en: "Organization", zh: "组织" },
+    organizationPlaceholder: { en: "Your organization or company", zh: "您的组织或公司" },
+    position: { en: "Position", zh: "职位" },
+    positionPlaceholder: { en: "Your job title or position", zh: "您的职位" },
+    profileUpdateSuccess: { en: "Profile updated successfully!", zh: "个人资料更新成功！" },
 
     // Change Password
     changePassword: { en: "Change Password", zh: "更改密码" },
