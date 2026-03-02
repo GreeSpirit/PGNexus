@@ -387,14 +387,16 @@ function UserProfileContent() {
                         </p>
                       </div>
                     </div>
-                    <div>
-                      <Button
-                        onClick={() => handleTabChange("profile")}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                      >
-                        {t(trans.userProfile.completeProfile)}
-                      </Button>
-                    </div>
+                    {!(bio && organization && position) && (
+                      <div>
+                        <Button
+                          onClick={() => handleTabChange("profile")}
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                        >
+                          {t(trans.userProfile.completeProfile)}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
