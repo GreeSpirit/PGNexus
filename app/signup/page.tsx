@@ -4,9 +4,12 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { translations as trans } from "@/lib/translations";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,9 +65,9 @@ export default function SignupPage() {
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             PGNexus
           </h1>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Create an account</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t(trans.auth.signUp)}</h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Get started with PGNexus today
+            {t(trans.auth.getStarted)}
           </p>
         </div>
 
@@ -76,7 +79,7 @@ export default function SignupPage() {
                   htmlFor="name"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Name (optional)
+                  {t(trans.auth.nameOptional)}
                 </label>
                 <input
                   id="name"
@@ -86,7 +89,7 @@ export default function SignupPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                  placeholder="John Doe"
+                  placeholder={t(trans.auth.namePlaceholder)}
                 />
               </div>
 
@@ -95,7 +98,7 @@ export default function SignupPage() {
                   htmlFor="email"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Email
+                  {t(trans.auth.email)}
                 </label>
                 <input
                   id="email"
@@ -106,7 +109,7 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                  placeholder="you@example.com"
+                  placeholder={t(trans.auth.emailPlaceholder)}
                 />
               </div>
 
@@ -115,7 +118,7 @@ export default function SignupPage() {
                   htmlFor="password"
                   className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2"
                 >
-                  Password
+                  {t(trans.auth.password)}
                 </label>
                 <input
                   id="password"
@@ -126,11 +129,11 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
-                  placeholder="••••••••"
+                  placeholder={t(trans.auth.passwordPlaceholder)}
                   minLength={6}
                 />
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                  Must be at least 6 characters
+                  {t(trans.auth.passwordMinLength)}
                 </p>
               </div>
             </div>
@@ -146,16 +149,16 @@ export default function SignupPage() {
               disabled={isLoading}
               className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
             >
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? t(trans.auth.creatingAccount) : t(trans.auth.createAccount)}
             </button>
 
             <p className="text-center text-sm text-slate-600 dark:text-slate-400">
-              Already have an account?{" "}
+              {t(trans.auth.haveAccount)}{" "}
               <Link
                 href="/login"
                 className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
-                Sign in
+                {t(trans.auth.signInLink)}
               </Link>
             </p>
           </form>

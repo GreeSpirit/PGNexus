@@ -6,10 +6,22 @@
  *        Then use with: useLanguage().t(t.nav.home)
  */
 
+import Email from "next-auth/providers/email";
+
 export const translations = {
   // ========================================
   // Navigation
   // ========================================
+  login: {
+    welcome: { en: "Welcome back", zh: "欢迎回来" },
+    desc: { en: "Sign in to your account", zh: "登录您的账号" },
+    email: { en: "Email", zh: "邮箱" },
+    password: { en: "Password", zh: "密码" },
+    signIn: { en: "Sign In", zh: "登录" },
+    signingIn: { en: "Signing in...", zh: "登录中..." },
+    signUp: { en: "Sign Up", zh: "注册" },
+    forget: { en: "Don't have an account? ", zh: "还没有账号？" },
+  },
   nav: {
     home: { en: "Home", zh: "首页" },
     discover: { en: "Discover", zh: "发现" },
@@ -62,6 +74,16 @@ export const translations = {
     rememberMe: { en: "Remember me", zh: "记住我" },
     noAccount: { en: "Don't have an account?", zh: "还没有账号？" },
     haveAccount: { en: "Already have an account?", zh: "已有账号？" },
+    name: { en: "Name", zh: "姓名" },
+    nameOptional: { en: "Name (optional)", zh: "姓名（可选）" },
+    namePlaceholder: { en: "John Doe", zh: "张三" },
+    emailPlaceholder: { en: "you@example.com", zh: "您的邮箱地址" },
+    passwordPlaceholder: { en: "••••••••", zh: "••••••••" },
+    passwordMinLength: { en: "Must be at least 6 characters", zh: "至少6个字符" },
+    createAccount: { en: "Create account", zh: "创建账号" },
+    creatingAccount: { en: "Creating account...", zh: "正在创建账号..." },
+    getStarted: { en: "Get started with PGNexus today", zh: "立即开始使用 PGNexus" },
+    signInLink: { en: "Sign in", zh: "登录" },
   },
 
   // ========================================
@@ -292,9 +314,12 @@ export const translations = {
 
     // Subscribe
     subscribeTitle: { en: "Stay Updated", zh: "保持更新" },
+    subscribeSubtitlebyFirst: { en: "Curated PostgreSQL tech blogs and discussions, stay updated with community trends", zh: "精选 PostgreSQL 技术博客和讨论，及时了解社区动态" },
     subscribeSubtitle: { en: "Get the latest PostgreSQL news and insights delivered to your inbox", zh: "将最新的 PostgreSQL 新闻和见解直接发送到您的收件箱" },
     subscribeButton: { en: "Subscribe to Updates", zh: "订阅更新" },
     emailPlaceholder: { en: "Enter your email", zh: "输入您的电子邮件" },
+    daySubscribeButton: { en: "Daily Digest", zh: "每日摘要" },
+    weekSubscribeButton: { en: "Weekly Digest", zh: "每周摘要" },
 
     // Testimonials
     testimonialsTitle: { en: "What Our Community Says", zh: "社区评价" },
@@ -473,6 +498,23 @@ export const translations = {
     scanQrCode: { en: "Or scan this QR code", zh: "或扫描此二维码" },
     generating: { en: "Generating...", zh: "生成中..." },
     loading: { en: "Loading...", zh: "加载中..." },
+    
+    // Complete Profile
+    completeProfile: { en: "Complete Your Profile", zh: "完成您的个人资料" },
+    completeProfileDescription: { en: "Enhance your PGNexus experience by adding more details about yourself.", zh: "通过添加更多个人信息来增强您的 PGNexus 体验。" },
+    bio: { en: "Bio", zh: "简介" },
+    bioPlaceholder: { en: "Tell us a little about yourself...", zh: "告诉我们一些关于您自己的信息..." },
+    company: { en: "Company", zh: "公司" },
+    companyPlaceholder: { en: "Your company name", zh: "您的公司名称" },
+    jobTitle: { en: "Job Title", zh: "职位" },
+    jobTitlePlaceholder: { en: "Your job title", zh: "您的职位" },
+    country: { en: "Country/Region", zh: "国家/地区" },
+    countryPlaceholder: { en: "Select your country/region", zh: "选择您的国家/地区" },
+    avatar: { en: "Avatar", zh: "头像" },
+    uploadAvatar: { en: "Upload Avatar", zh: "上传头像" },
+    saveProfile: { en: "Save Profile", zh: "保存个人资料" },
+    profileSaved: { en: "Profile saved successfully!", zh: "个人资料保存成功！" },
+    saveChanges: { en: "Save Changes", zh: "保存更改" },
   },
   // ========================================
   // Suggest Article Page

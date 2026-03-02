@@ -88,24 +88,49 @@ export function CommunitySection() {
             </div>
 
             {/* Subscribe Section */}
-            <div className="backdrop-blur-md bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-white mb-3">
-                {t(trans.communitySection.subscribeTitle)}
-              </h3>
-              <p className="text-blue-100 mb-6">
-                {t(trans.communitySection.subscribeSubtitle)}
-              </p>
-              <div className="flex flex-col gap-3">
-                <input
-                  type="email"
-                  placeholder={t(trans.communitySection.emailPlaceholder)}
-                  className="px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-white/50 text-slate-900"
-                />
-                <Button
-                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105 shadow-md cursor-pointer whitespace-nowrap"
-                >
-                  {t(trans.communitySection.subscribeButton)}
-                </Button>
+            <div className="backdrop-blur-md bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  {t(trans.communitySection.subscribeTitle)}
+                </h3>
+             
+                <div className="space-y-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm mt-0.5">
+                      ✅
+                    </div>
+                    <p className="text-blue-100">
+                       {t(trans.communitySection.subscribeSubtitlebyFirst)}
+                    </p>
+                  </div>
+          
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm mt-0.5">
+                      ✅
+                    </div>
+                    <p className="text-blue-100">
+                       {t(trans.communitySection.subscribeSubtitle)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <Button
+                    asChild
+                    className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105 shadow-md cursor-pointer whitespace-nowrap"
+                  >
+                    <a href="https://lists.ivorysql.org/postorius/lists/pgtechdailycn.ivorysql.org/" target="_blank" rel="noopener noreferrer">
+                      {t(trans.communitySection.daySubscribeButton)}
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold px-6 py-3 rounded-lg transition-all hover:scale-105 shadow-md cursor-pointer whitespace-nowrap"
+                  >
+                    <a href="https://lists.ivorysql.org/postorius/lists/pgtechweeklycn.ivorysql.org/" target="_blank" rel="noopener noreferrer">
+                      {t(trans.communitySection.weekSubscribeButton)}
+                    </a>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
