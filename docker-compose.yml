@@ -48,7 +48,27 @@ services:
       timeout: 10s
       start_period: 60s
       retries: 3
-  
+ 
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:2.3.5
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: n8n.pgnexus.ai
+      N8N_PROTOCOL: http
+        #N8N_SSL_CERT: /certs/fullchain.pem
+        #N8N_SSL_KEY: /certs/privkey.pem
+      WEBHOOK_URL: https://n8n.pgnexus.ai/
+    volumes:
+      #- ./nginx/certs/n8n-fullchain.pem:/certs/fullchain.pem:ro
+      #- ./nginx/certs/n8n-privkey.pem:/certs/privkey.pem:ro
+      - n8n-data:/home/node/.n8n
+    networks:
+      - pgnexus-network
+      - pubnet
+
   nginx:
     image: nginx:1.25-alpine
     container_name: nginx-proxy
@@ -89,6 +109,7 @@ services:
 
 volumes:
   n8n-postgres-data: {}
+  n8n-data: {}
 
 networks:
   pgnexus-network:

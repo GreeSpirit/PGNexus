@@ -175,7 +175,8 @@ CREATE TABLE IF NOT EXISTS news_feeds (
         pubdate                 TIMESTAMPTZ NOT NULL,
         messages                TEXT,
         summary                 TEXT,
-        summary_zh              TEXT
+        summary_zh              TEXT,
+	imgurl			TEXT
 );
 CREATE INDEX news_feeds_index ON news_feeds(jobid);
 CREATE UNIQUE INDEX news_feeds_index2 ON news_feeds(jobid, subject);
