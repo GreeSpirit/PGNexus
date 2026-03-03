@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Loader2, Search, X, FileCode2, Tag, ExternalLink,
+  Loader2, Search, X, FileCode2, Tag,
   AlertTriangle, CheckCircle2, XCircle, ChevronDown, ChevronUp,
   Code2, FileText, HelpCircle, ShieldAlert, Layers,
 } from "lucide-react";
@@ -202,7 +202,6 @@ function FileSummaryCard({ file, language }: { file: FileSummary; language: stri
 function PatchDetailPanel({ patch, language, t }: { patch: PatchDetailFull; language: string; t: (v: { en: string; zh: string }) => string }) {
   const p = trans.communityPatchesPage;
   const data: PatchDetailsData | null = patch.details?.[0] ?? null;
-  const threadUrl = `https://www.postgresql.org/message-id/${patch.messageid}`;
 
   const involvedAreas = AREAS_CONFIG.filter(
     (a) => data?.areas_touched?.[a.key]?.involved === true
@@ -215,20 +214,9 @@ function PatchDetailPanel({ patch, language, t }: { patch: PatchDetailFull; lang
     <div className="space-y-6">
       {/* Header */}
       <div className="pb-6 border-b border-slate-200/60 dark:border-slate-700/60">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <code className="text-base font-bold text-amber-700 dark:text-amber-400 break-all leading-relaxed">
-            {patch.patchfile}
-          </code>
-          <a
-            href={threadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            {t(p.viewThread)}
-          </a>
-        </div>
+        <code className="text-base font-bold text-amber-700 dark:text-amber-400 break-all leading-relaxed">
+          {patch.patchfile}
+        </code>
       </div>
 
       {/* Summary */}
