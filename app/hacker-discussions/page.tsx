@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2, Search, X, MessageSquare, FileCode2 } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Search, X, MessageSquare, FileCode2, ArrowRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
@@ -372,12 +373,16 @@ function HackerDiscussionsContent() {
                                 </div>
                                 <div className="space-y-3">
                                   {displayedPatches.map((patch, idx) => (
-                                    <div
+                                    <Link
                                       key={idx}
-                                      className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 rounded-lg p-3"
+                                      href={`/community-patches?patchfile=${encodeURIComponent(patch.patchfile)}&jobid=${patch.jobid}&threadid=${encodeURIComponent(patch.threadid)}`}
+                                      className="group block bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 rounded-lg p-3 hover:bg-amber-100/60 dark:hover:bg-amber-900/30 hover:border-amber-300 dark:hover:border-amber-700 transition-all cursor-pointer"
                                     >
-                                      <div className="font-mono text-xs text-amber-700 dark:text-amber-400 mb-2 break-all">
-                                        {patch.patchfile}
+                                      <div className="flex items-start justify-between gap-2 mb-2">
+                                        <div className="font-mono text-xs text-amber-700 dark:text-amber-400 break-all leading-relaxed">
+                                          {patch.patchfile}
+                                        </div>
+                                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
                                       </div>
                                       {(patch.summary || patch.summary_zh) && (
                                         <p className="text-sm text-slate-700 dark:text-slate-300 mb-2">
@@ -399,7 +404,7 @@ function HackerDiscussionsContent() {
                                             : patch.risk_zh || patch.risk}
                                         </p>
                                       )}
-                                    </div>
+                                    </Link>
                                   ))}
                                 </div>
                                 {hasMore && !isExpanded && (

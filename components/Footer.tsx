@@ -12,6 +12,7 @@ export function Footer() {
   const discoverLinks = [
     { href: "/daily-updates", label: t(trans.nav.dailyUpdates) },
     { href: "/hacker-discussions", label: t(trans.nav.hackerDiscussions) },
+    { href: "/community-patches", label: t(trans.nav.communityPatches) },
     { href: "/tech-blogs", label: t(trans.nav.techBlogs) },
     { href: "/tech-news", label: t(trans.nav.industryNews) },
   ];

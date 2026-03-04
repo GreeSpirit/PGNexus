@@ -38,6 +38,10 @@ export function DashboardNav() {
       label: t(trans.nav.hackerDiscussions),
     },
     {
+      href: "/community-patches",
+      label: t(trans.nav.communityPatches),
+    },
+    {
       href: "/tech-blogs",
       label: t(trans.nav.techBlogs),
     },

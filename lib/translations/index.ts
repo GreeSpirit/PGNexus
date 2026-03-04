@@ -43,6 +43,8 @@ export const translations = {
     researchPapers: { en: "Research and Papers", zh: "研究论文" },
     conferencesTalks: { en: "Conferences and Talks", zh: "会议演讲" },
 
+    communityPatches: { en: "Community Patches", zh: "社区补丁" },
+
     // Community dropdown
     hackerProfiles: { en: "Hacker Profiles", zh: "开发者档案" },
     eventsMeetups: { en: "Events and Meetups", zh: "活动聚会" },
@@ -266,6 +268,44 @@ export const translations = {
     patchSummary: { en: "Summary", zh: "摘要" },
     patchRisk: { en: "Risk", zh: "风险" },
     loadMorePatches: { en: "Load more patches", zh: "加载更多补丁" },
+  },
+
+  // ========================================
+  // Community Patches Page
+  // ========================================
+  communityPatchesPage: {
+    title: { en: "Community Patches", zh: "社区补丁" },
+    subtitle: { en: "Detailed analysis of PostgreSQL community patch submissions from the hacker mailing list", zh: "PostgreSQL 社区黑客邮件列表补丁提交的详细分析" },
+    searchPlaceholder: { en: "Search patches...", zh: "搜索补丁..." },
+    clearSearch: { en: "Clear Search", zh: "清除搜索" },
+    patchesCount: { en: "Patches", zh: "补丁" },
+    noPatches: { en: "No patches found", zh: "未找到补丁" },
+    noPatchesSearch: { en: "No patches match your search for", zh: "没有补丁与您的搜索匹配" },
+    noPatchesAvailable: { en: "There are no patch reports available at the moment.", zh: "目前没有可用的补丁报告。" },
+    loadMore: { en: "Load More", zh: "加载更多" },
+    remaining: { en: "remaining", zh: "剩余" },
+    selectPatch: { en: "Select a patch", zh: "选择一个补丁" },
+    selectPatchSubtext: { en: "Choose a patch from the sidebar to view its detailed analysis", zh: "从侧边栏选择补丁以查看其详细分析" },
+    viewThread: { en: "View Thread", zh: "查看线程" },
+    summary: { en: "Summary", zh: "摘要" },
+    risk: { en: "Risk Assessment", zh: "风险评估" },
+    changeMetrics: { en: "Change Metrics", zh: "变更指标" },
+    filesChanged: { en: "files changed", zh: "个文件已更改" },
+    addedLines: { en: "added", zh: "行新增" },
+    removedLines: { en: "removed", zh: "行删除" },
+    areasTouched: { en: "Areas Touched", zh: "涉及领域" },
+    keyFunctionChanges: { en: "Key Function Changes", zh: "关键函数变更" },
+    fileSummaries: { en: "File Summaries", zh: "文件摘要" },
+    testsAndDocs: { en: "Tests & Documentation", zh: "测试与文档" },
+    regressionTests: { en: "Regression Tests Changed", zh: "回归测试已更改" },
+    documentation: { en: "Documentation Changed", zh: "文档已更改" },
+    yes: { en: "Yes", zh: "是" },
+    no: { en: "No", zh: "否" },
+    keyConcerns: { en: "Key Concerns", zh: "主要关注点" },
+    suggestedCheck: { en: "Suggested Check", zh: "建议检查" },
+    reviewerQuestions: { en: "Reviewer Questions", zh: "审查者问题" },
+    trackingTags: { en: "Tracking Tags", zh: "追踪标签" },
+    noDetails: { en: "No detailed analysis available for this patch", zh: "此补丁暂无详细分析" },
   },
 
   // ========================================
