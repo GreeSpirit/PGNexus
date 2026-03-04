@@ -12,6 +12,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { translations as trans } from "@/lib/translations";
 import type { UnifiedFeed } from "@/lib/types/database";
 import { Mail, FileCode, Users, ExternalLink, MessageCircle, Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { PatchAnalysisSection } from "@/components/home/PatchAnalysisSection";
 
 interface TopSubject {
   subject: string;
@@ -24,6 +25,7 @@ interface HomePageContentProps {
   newsFeeds: UnifiedFeed[];
   topSubjects: TopSubject[];
   maxJobId: number;
+  socialFeeds: UnifiedFeed[];
 }
 
 function FeedCard({
@@ -116,7 +118,7 @@ const formatDate = (dateInput: string | Date): string => {
   }
 };
 
-export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, maxJobId }: HomePageContentProps) {
+export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, maxJobId, socialFeeds }: HomePageContentProps) {
   const { t, language } = useLanguage();
   const [weeklyTotals, setWeeklyTotals] = useState<{
     totalEmails: number;
@@ -301,6 +303,35 @@ export function HomePageContent({ rssFeeds, emailFeeds, newsFeeds, topSubjects, 
           })}
         </div>
       </div>
+      {/* Community Patch Analysis */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+            {t(trans.homePage.patchAnalysisTitle)}
+          </h2>
+          <Link
+            href="/community-patches"
+            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center gap-1"
+          >
+            {t(trans.homePage.viewAll)}
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
+        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+          {t(trans.homePage.patchAnalysisDescription)}
+        </p>
+        <PatchAnalysisSection />
+      </div>
+
+      {/* Social Updates */}
+      <FeedCardWidget
+        feeds={socialFeeds}
+        title={t(trans.homePage.socialUpdatesTitle)}
+        type="news"
+        viewAllLink="/social-media"
+        description={t(trans.homePage.socialUpdatesDescription)}
+      />
+
       {/* Industry News */}
       <FeedCardWidget
         feeds={newsFeeds}

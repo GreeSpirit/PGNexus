@@ -36,6 +36,7 @@ export const translations = {
     hackerDiscussions: { en: "Hacker Discussions", zh: "技术讨论" },
     techBlogs: { en: "Tech Blogs", zh: "技术博客" },
     industryNews: { en: "Industry News", zh: "行业新闻" },
+    socialMedia: { en: "Social Media", zh: "社区动态" },
 
     // Knowledge dropdown
     deepDives: { en: "Deep Dives", zh: "深度解析" },
@@ -177,6 +178,26 @@ export const translations = {
     contributorsLabel: { en: "Contributors", zh: "贡献者数量" },
     topDiscussionSubjects: { en: "Top Discussion Subjects", zh: "热门讨论主题" },
 
+    // Community Patch Analysis Section
+    patchAnalysisTitle: { en: "Community Patch Analysis", zh: "社区补丁分析" },
+    patchAnalysisDescription: {
+      en: "In-depth analysis of PostgreSQL community patches, tracking impacted code areas and risk assessments to help reviewers navigate contributions.",
+      zh: "深度分析 PostgreSQL 社区补丁，追踪涉及代码领域与风险评估，助力审阅者高效处理社区贡献。",
+    },
+    patchStatisticsTitle: { en: "Patch Statistics", zh: "补丁统计" },
+    patchesAnalyzed: { en: "Patches Analyzed", zh: "已分析补丁" },
+    areasDistribution: { en: "Areas Touched Distribution", zh: "涉及领域分布" },
+    recentAnalyses: { en: "Recently Analyzed", zh: "最新分析" },
+    viewAnalysis: { en: "View Full Analysis", zh: "查看完整分析" },
+    noAreasData: { en: "No area data available yet", zh: "暂无领域数据" },
+
+    // Social Updates Section
+    socialUpdatesTitle: { en: "Social Updates", zh: "社区动态" },
+    socialUpdatesDescription: {
+      en: "Latest PostgreSQL posts and discussions from across social platforms.",
+      zh: "来自各大社交平台的最新 PostgreSQL 动态与讨论。",
+    },
+
     // Industry News Section
     industryNewsTitle: { en: "Industry News", zh: "行业新闻" },
     industryNewsDescription: {
@@ -219,6 +240,30 @@ export const translations = {
     noSummary: { en: "No summary available", zh: "暂无摘要" },
     selectBlog: { en: "Select a blog", zh: "选择一篇博客" },
     selectBlogSubtext: { en: "Choose a blog post from the sidebar to view its summary", zh: "从侧边栏选择一篇博客文章以查看其摘要" },
+  },
+
+  // ========================================
+  // Social Media Page
+  // ========================================
+  socialMediaPage: {
+    title: { en: "Social Media Updates", zh: "社区动态" },
+    subtitle: { en: "Latest PostgreSQL posts and discussions from across social platforms.", zh: "来自各大社交平台的最新 PostgreSQL 动态与讨论。" },
+    searchPlaceholder: { en: "Search posts...", zh: "搜索帖子..." },
+    clearSearch: { en: "Clear Search", zh: "清除搜索" },
+    postsCount: { en: "Posts", zh: "帖子" },
+    noPosts: { en: "No posts found", zh: "未找到帖子" },
+    noPostsSearch: { en: "No posts match your search for", zh: "没有帖子与您的搜索匹配" },
+    noPostsAvailable: { en: "There are no posts available at the moment.", zh: "目前没有可用的帖子。" },
+    loadMore: { en: "Load More", zh: "加载更多" },
+    remaining: { en: "remaining", zh: "剩余" },
+    viewOriginal: { en: "View original post", zh: "查看原帖" },
+    summary: { en: "Summary", zh: "摘要" },
+    noSummary: { en: "No summary available", zh: "暂无摘要" },
+    selectPost: { en: "Select a post", zh: "选择一篇帖子" },
+    selectPostSubtext: { en: "Choose a post from the sidebar to view its details", zh: "从侧边栏选择一篇帖子以查看详情" },
+    likes: { en: "Likes", zh: "点赞" },
+    comments: { en: "Comments", zh: "评论" },
+    mediaAttachment: { en: "Media", zh: "媒体" },
   },
 
   // ========================================
@@ -322,6 +367,7 @@ export const translations = {
     noUpdatesSubtext: { en: "Daily update markdown files will appear here once added to the content directory.", zh: "添加到内容目录后，每日更新的 Markdown 文件将显示在此处。" },
     loadMore: { en: "Load More", zh: "加载更多" },
     remaining: { en: "remaining", zh: "剩余" },
+    downloadMd: { en: "Download MD", zh: "下载 MD" },
   },
 
   // ========================================

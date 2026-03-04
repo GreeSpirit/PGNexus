@@ -5,6 +5,19 @@ import type { UnifiedFeed } from "@/lib/types/database";
 
 export const dynamic = 'force-dynamic';
 
+// Domains whose images need server-side proxying (hotlink protection)
+const PROXY_DOMAINS = new Set(['mmbiz.qpic.cn', 'mmbiz.qlogo.cn', 'wx.qlogo.cn']);
+function proxyImgUrl(url: string | undefined | null): string | undefined {
+  if (!url) return undefined;
+  try {
+    const { hostname } = new URL(url);
+    if (PROXY_DOMAINS.has(hostname)) {
+      return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    }
+  } catch { /* invalid URL — pass through */ }
+  return url;
+}
+
 async function getLatestEmailSubjects(limit: number) {
   const result = await query(
     `
@@ -57,13 +70,26 @@ async function getTopDiscussionSubjects(limit: number) {
   };
 }
 
+async function getLatestSocialFeeds(limit: number) {
+  const result = await query(
+    `SELECT jobid, platform, title, title_zh, url, imgurl,
+            author, pubdate, summary, summary_zh
+     FROM social_feeds
+     ORDER BY jobid DESC, pubdate DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return result.rows;
+}
+
 export default async function DashboardPage() {
-  // Fetch latest feeds from each type in parallel (only 3 for card view)
-  const [rssFeeds, emailSubjects, newsFeeds, topSubjects] = await Promise.all([
+  // Fetch all data in parallel
+  const [rssFeeds, emailSubjects, newsFeeds, topSubjects, socialFeeds] = await Promise.all([
     getLatestRssFeeds(3, 0),
     getLatestEmailSubjects(3),
     getLatestNewsFeeds(3, 0),
     getTopDiscussionSubjects(5),
+    getLatestSocialFeeds(3),
   ]);
 
   // Transform feeds to UnifiedFeed format
@@ -122,6 +148,20 @@ export default async function DashboardPage() {
     imgurl: feed.imgurl,
   }));
 
+  const transformedSocialFeeds: UnifiedFeed[] = socialFeeds.map((feed: any, index: number) => ({
+    id: `${feed.jobid}-${feed.url}`,
+    type: 'news' as const,
+    title: feed.title,
+    title_zh: feed.title_zh,
+    date: feed.pubdate,
+    source: feed.author,
+    link: `/social-media?url=${encodeURIComponent(feed.url)}`,
+    summary_english: feed.summary,
+    summary_chinese: feed.summary_zh,
+    // Proxy WeChat CDN images; fall back to default images if none provided
+    imgurl: proxyImgUrl(feed.imgurl) ?? `/images/default${(index % 6) + 1}.jpg`,
+  }));
+
   return (
     <HomePageContent
       rssFeeds={transformedRssFeeds}
@@ -129,6 +169,7 @@ export default async function DashboardPage() {
       newsFeeds={transformedNewsFeeds}
       topSubjects={topSubjects.subjects}
       maxJobId={topSubjects.maxJobId}
+      socialFeeds={transformedSocialFeeds}
     />
   );
 }

@@ -284,6 +284,17 @@ CREATE INDEX social_sources_index ON social_sources(userid);
 CREATE INDEX social_sources_index2 ON social_sources(platform);
 CREATE INDEX social_sources_index3 ON social_sources(status);
 
+CREATE TABLE IF NOT EXISTS daily_updates (
+	jobid				BIGINT REFERENCES poll_jobs(jobid),
+	day					DATE,
+	title				TEXT NOT NULL,
+	title_zh			TEXT,
+	content				TEXT NOT NULL,
+	content_zh			TEXT
+);
+CREATE INDEX daily_updates_index ON daily_updates(jobid);
+CREATE UNIQUE INDEX daily_updates_index2 ON daily_updates(jobid, title);
+
 -- =====================================================
 -- 3. COMMENTS FOR DOCUMENTATION
 -- =====================================================

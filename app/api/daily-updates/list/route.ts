@@ -1,68 +1,65 @@
 import { NextResponse } from 'next/server';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
+import { query } from '@/lib/db';
 
-// Disable caching for this route to always get fresh file list
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+interface DailyUpdateEntry {
+  source: 'file' | 'db';
+  date: string;
+  jobid: number;
+  filename?: string;
+}
+
 export async function GET() {
+  const entries: DailyUpdateEntry[] = [];
+  const seenJobIds = new Set<number>();
+
+  // 1. Fetch DB entries (future updates — highest priority)
   try {
-
-    const contentDir = join(process.cwd(), 'content', 'daily-updates');
-
-    try {
-      const files = await readdir(contentDir);
-
-      // Filter for .md files and extract metadata
-      // Exclude language-specific files (e.g., *_zh.md) from the list
-      const markdownFiles = files
-        .filter(file => file.endsWith('.md') && !file.match(/_[a-z]{2}\.md$/))
-        .map(file => {
-          // Extract date and jobid from filename
-          // Format: YYYY-MM-DD-postgresql-daily-news-{jobid}.md
-          const match = file.match(/^(\d{4}-\d{2}-\d{2}).*?-(\d+)\.md$/);
-
-          if (match) {
-            return {
-              filename: file,
-              date: match[1],
-              jobid: parseInt(match[2]),
-            };
-          }
-
-          // Fallback: just use filename
-          return {
-            filename: file,
-            date: file.substring(0, 10), // Try to extract date from start
-            jobid: 0,
-          };
-        })
-        .sort((a, b) => {
-          // Sort by jobid descending (latest first)
-          if (a.jobid !== b.jobid) {
-            return b.jobid - a.jobid;
-          }
-          // Then by date descending
-          return b.date.localeCompare(a.date);
-        });
-
-      return NextResponse.json({
-        files: markdownFiles,
-        latest: markdownFiles.length > 0 ? markdownFiles[0] : null,
-      });
-    } catch (error) {
-      // Directory doesn't exist or is empty
-      return NextResponse.json({
-        files: [],
-        latest: null,
-      });
-    }
-  } catch (error) {
-    console.error('Error listing daily updates:', error);
-    return NextResponse.json(
-      { error: 'Failed to list daily updates' },
-      { status: 500 }
+    const result = await query(
+      'SELECT DISTINCT ON (jobid) jobid, day FROM daily_updates ORDER BY jobid DESC',
+      []
     );
+    for (const row of result.rows) {
+      const jobid = Number(row.jobid);
+      const date = row.day instanceof Date
+        ? row.day.toISOString().substring(0, 10)
+        : String(row.day).substring(0, 10);
+      entries.push({ source: 'db', date, jobid });
+      seenJobIds.add(jobid);
+    }
+  } catch (err) {
+    console.error('Error fetching from daily_updates table:', err);
   }
+
+  // 2. Fetch file-based entries (backward compat — skipped if jobid already in DB)
+  try {
+    const contentDir = join(process.cwd(), 'content', 'daily-updates');
+    const files = await readdir(contentDir);
+
+    for (const file of files) {
+      if (!file.endsWith('.md') || file.match(/_[a-z]{2}\.md$/)) continue;
+
+      const match = file.match(/^(\d{4}-\d{2}-\d{2}).*?-(\d+)\.md$/);
+      const date = match ? match[1] : file.substring(0, 10);
+      const jobid = match ? parseInt(match[2]) : 0;
+
+      if (!seenJobIds.has(jobid)) {
+        entries.push({ source: 'file', date, jobid, filename: file });
+        seenJobIds.add(jobid);
+      }
+    }
+  } catch {
+    // Directory doesn't exist or is empty
+  }
+
+  entries.sort((a, b) => b.jobid - a.jobid);
+
+  return NextResponse.json({
+    entries,
+    latest: entries.length > 0 ? entries[0] : null,
+  });
 }
