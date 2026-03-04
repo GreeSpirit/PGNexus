@@ -222,7 +222,7 @@ export default function DashboardPage() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [subscribedOnly, isSearchMode, filters]);
+  }, [subscribedOnly, isSearchMode, filters, language]);
 
   useEffect(() => {
     if (!isSearchMode) {

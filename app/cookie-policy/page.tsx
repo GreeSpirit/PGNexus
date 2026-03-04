@@ -24,7 +24,7 @@ function EnContent() {
 
       <Sec title="1. What Are Cookies?">
         <P>Cookies are small text files stored on your device when you visit a website. They are widely used to make websites work more efficiently, remember your preferences, and provide information to site owners about how users interact with their site.</P>
-        <P>Cookies can be "session cookies" (deleted when you close your browser) or "persistent cookies" (remaining on your device for a set period). They can also be "first-party" (set by PGNexus) or "third-party" (set by external services).</P>
+        <P>Cookies can be &ldquo;session cookies&rdquo; (deleted when you close your browser) or &ldquo;persistent cookies&rdquo; (remaining on your device for a set period). They can also be &ldquo;first-party&rdquo; (set by PGNexus) or &ldquo;third-party&rdquo; (set by external services).</P>
       </Sec>
 
       <Sec title="2. Cookies We Use">
@@ -60,7 +60,7 @@ function EnContent() {
 
       <Sec title="5. How to Control Cookies">
         <Sub>Browser Settings</Sub>
-        <P>Most browsers let you control cookies through their settings. You can block cookies, be alerted when cookies are sent, or delete existing cookies. Refer to your browser's help documentation:</P>
+        <P>Most browsers let you control cookies through their settings. You can block cookies, be alerted when cookies are sent, or delete existing cookies. Refer to your browser&apos;s help documentation:</P>
         <UL items={[
           <><A href="https://support.google.com/chrome/answer/95647" external>Google Chrome</A></>,
           <><A href="https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences" external>Mozilla Firefox</A></>,
@@ -73,7 +73,7 @@ function EnContent() {
       </Sec>
 
       <Sec title="6. Do Not Track">
-        <P>Some browsers include a "Do Not Track" (DNT) feature that signals to websites that you do not want to be tracked. PGNexus respects DNT signals where technically feasible and does not use persistent cross-site tracking cookies.</P>
+        <P>Some browsers include a &ldquo;Do Not Track&rdquo; (DNT) feature that signals to websites that you do not want to be tracked. PGNexus respects DNT signals where technically feasible and does not use persistent cross-site tracking cookies.</P>
       </Sec>
 
       <Sec title="7. Changes to This Policy">
@@ -106,7 +106,7 @@ function ZhContent() {
 
       <Sec title="一、什么是 Cookie？">
         <P>Cookie 是当您访问网站时存储在您设备（电脑、平板或手机）上的小型文本文件。Cookie 被广泛用于提升网站运行效率、记住您的偏好设置，以及向网站所有者提供用户行为信息。</P>
-        <P>Cookie 分为"会话 Cookie"（浏览器关闭时删除）和"持久 Cookie"（在设备上保存一段时间）两类，也可分为"第一方 Cookie"（由 PGNexus 设置）和"第三方 Cookie"（由外部服务设置）。</P>
+        <P>Cookie 分为&ldquo;会话 Cookie&rdquo;（浏览器关闭时删除）和&ldquo;持久 Cookie&rdquo;（在设备上保存一段时间）两类，也可分为&ldquo;第一方 Cookie&rdquo;（由 PGNexus 设置）和&ldquo;第三方 Cookie&rdquo;（由外部服务设置）。</P>
       </Sec>
 
       <Sec title="二、我们使用的 Cookie">
@@ -155,7 +155,7 @@ function ZhContent() {
       </Sec>
 
       <Sec title="六、请勿追踪（Do Not Track）">
-        <P>部分浏览器提供"请勿追踪"（DNT）功能，向网站发出您不希望被追踪的信号。在技术可行的范围内，PGNexus 尊重 DNT 信号，且不使用持久性跨站追踪 Cookie。</P>
+        <P>部分浏览器提供&ldquo;请勿追踪&rdquo;（DNT）功能，向网站发出您不希望被追踪的信号。在技术可行的范围内，PGNexus 尊重 DNT 信号，且不使用持久性跨站追踪 Cookie。</P>
       </Sec>
 
       <Sec title="七、政策变更">

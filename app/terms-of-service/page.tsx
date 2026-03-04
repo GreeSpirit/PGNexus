@@ -18,7 +18,7 @@ function EnContent() {
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Last updated: March 4, 2026</p>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-          These Terms of Service ("Terms") govern your access to and use of PGNexus and its related services. By accessing or using PGNexus, you agree to be bound by these Terms. If you do not agree, please do not use our services.
+          These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of PGNexus and its related services. By accessing or using PGNexus, you agree to be bound by these Terms. If you do not agree, please do not use our services.
         </p>
       </div>
 
@@ -58,7 +58,7 @@ function EnContent() {
       </Sec>
 
       <Sec title="5. User-Submitted Content">
-        <P>PGNexus allows users to suggest articles, submit URLs, and provide other content ("User Content"). By submitting User Content, you:</P>
+        <P>PGNexus allows users to suggest articles, submit URLs, and provide other content (&ldquo;User Content&rdquo;). By submitting User Content, you:</P>
         <UL items={[
           "Represent that you have the right to submit the content and that it does not infringe any third-party rights.",
           "Grant PGNexus a non-exclusive, worldwide, royalty-free license to use, display, and process your submission in connection with operating the platform.",
@@ -74,7 +74,7 @@ function EnContent() {
 
       <Sec title="7. Intellectual Property">
         <P>The PGNexus platform — including its design, logo, branding, original text, and software — is owned by PGNexus and protected by applicable intellectual property laws. You may not reproduce, distribute, modify, or publicly exploit any part of PGNexus without our prior written permission.</P>
-        <P>"PostgreSQL" is a trademark of the PostgreSQL Global Development Group. PGNexus is an independent community platform and is not affiliated with, endorsed by, or sponsored by the PostgreSQL Global Development Group.</P>
+        <P>&ldquo;PostgreSQL&rdquo; is a trademark of the PostgreSQL Global Development Group. PGNexus is an independent community platform and is not affiliated with, endorsed by, or sponsored by the PostgreSQL Global Development Group.</P>
       </Sec>
 
       <Sec title="8. Privacy">
@@ -82,7 +82,7 @@ function EnContent() {
       </Sec>
 
       <Sec title="9. Disclaimer of Warranties">
-        <P>PGNexus is provided on an "as is" and "as available" basis, without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or uninterrupted, error-free service.</P>
+        <P>PGNexus is provided on an &ldquo;as is&rdquo; and &ldquo;as available&rdquo; basis, without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or uninterrupted, error-free service.</P>
         <P>We do not warrant that: (a) the platform will meet your requirements; (b) it will be available at any particular time; (c) any errors will be corrected; or (d) the platform is free of viruses or other harmful components. Content aggregated from third-party sources is provided for informational purposes only.</P>
       </Sec>
 
@@ -133,7 +133,7 @@ function ZhContent() {
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">最后更新：2026年3月4日</p>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-          本服务条款（以下简称"条款"）规范您对 PGNexus 及其相关服务的访问与使用。访问或使用 PGNexus，即表示您同意受本条款约束。若您不同意，请勿使用我们的服务。
+          本服务条款（以下简称&ldquo;条款&rdquo;）规范您对 PGNexus 及其相关服务的访问与使用。访问或使用 PGNexus，即表示您同意受本条款约束。若您不同意，请勿使用我们的服务。
         </p>
       </div>
 
@@ -173,7 +173,7 @@ function ZhContent() {
       </Sec>
 
       <Sec title="五、用户提交内容">
-        <P>PGNexus 允许用户推荐文章、提交链接及其他内容（以下简称"用户内容"）。提交用户内容，即表示您：</P>
+        <P>PGNexus 允许用户推荐文章、提交链接及其他内容（以下简称&ldquo;用户内容&rdquo;）。提交用户内容，即表示您：</P>
         <UL items={[
           "声明您有权提交该内容，且其不侵犯任何第三方权利。",
           "授予 PGNexus 非独家、全球性、免版税的许可，以在运营平台的范围内使用、展示和处理您的提交内容。",
@@ -189,7 +189,7 @@ function ZhContent() {
 
       <Sec title="七、知识产权">
         <P>PGNexus 平台——包括其设计、标志、品牌形象、原创文字及软件——均归 PGNexus 所有，受适用知识产权法律保护。未经我们事先书面许可，您不得复制、分发、修改或公开利用 PGNexus 的任何部分。</P>
-        <P>"PostgreSQL" 是 PostgreSQL 全球开发组的注册商标。PGNexus 是独立的社区平台，与 PostgreSQL 全球开发组无任何隶属、背书或赞助关系。</P>
+        <P>&ldquo;PostgreSQL&rdquo; 是 PostgreSQL 全球开发组的注册商标。PGNexus 是独立的社区平台，与 PostgreSQL 全球开发组无任何隶属、背书或赞助关系。</P>
       </Sec>
 
       <Sec title="八、隐私">
@@ -197,7 +197,7 @@ function ZhContent() {
       </Sec>
 
       <Sec title="九、免责声明">
-        <P>PGNexus 以"现状"和"可用状态"提供，不作任何明示或默示的保证，包括但不限于适销性、特定用途适用性或服务不中断、无错误的保证。</P>
+        <P>PGNexus 以&ldquo;现状&rdquo;和&ldquo;可用状态&rdquo;提供，不作任何明示或默示的保证，包括但不限于适销性、特定用途适用性或服务不中断、无错误的保证。</P>
         <P>我们不保证：（a）平台将满足您的需求；（b）服务在任何特定时间均可用；（c）任何错误均将得到纠正；（d）平台不含病毒或其他有害组件。来自第三方来源的聚合内容仅供参考。</P>
       </Sec>
 

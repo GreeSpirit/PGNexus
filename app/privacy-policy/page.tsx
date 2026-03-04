@@ -18,7 +18,7 @@ function EnContent() {
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Last updated: March 4, 2026</p>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-          PGNexus ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use PGNexus. Please read this carefully — if you disagree with its terms, please discontinue use of the site.
+          PGNexus (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use PGNexus. Please read this carefully — if you disagree with its terms, please discontinue use of the site.
         </p>
       </div>
 
@@ -86,7 +86,7 @@ function EnContent() {
         <UL items={[
           <><B>Access</B> — request a copy of the personal data we hold about you.</>,
           <><B>Correction</B> — request correction of inaccurate or incomplete data.</>,
-          <><B>Deletion</B> — request deletion of your personal data ("right to be forgotten").</>,
+          <><B>Deletion</B> — request deletion of your personal data (&ldquo;right to be forgotten&rdquo;).</>,
           <><B>Portability</B> — receive your data in a structured, machine-readable format.</>,
           <><B>Objection</B> — object to processing based on legitimate interests.</>,
           <><B>Restriction</B> — request we restrict processing of your data in certain circumstances.</>,
@@ -135,7 +135,7 @@ function ZhContent() {
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">最后更新：2026年3月4日</p>
         <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-          PGNexus（以下简称"我们"）高度重视用户的隐私保护。本隐私政策说明我们在您使用 PGNexus 时如何收集、使用、披露及保护您的信息。请您仔细阅读本政策。若您不同意本政策的条款，请停止使用本平台。
+          PGNexus（以下简称&ldquo;我们&rdquo;）高度重视用户的隐私保护。本隐私政策说明我们在您使用 PGNexus 时如何收集、使用、披露及保护您的信息。请您仔细阅读本政策。若您不同意本政策的条款，请停止使用本平台。
         </p>
       </div>
 
@@ -203,7 +203,7 @@ function ZhContent() {
         <UL items={[
           <><B>访问权</B>——请求获取我们持有的关于您的个人数据副本。</>,
           <><B>更正权</B>——请求更正不准确或不完整的数据。</>,
-          <><B>删除权</B>——请求删除您的个人数据（"被遗忘权"）。</>,
+          <><B>删除权</B>——请求删除您的个人数据（&ldquo;被遗忘权&rdquo;）。</>,
           <><B>数据可携带权</B>——以结构化、机器可读的格式获取您的数据。</>,
           <><B>异议权</B>——对基于合法利益的处理提出异议。</>,
           <><B>限制处理权</B>——在特定情形下请求限制对您数据的处理。</>,
