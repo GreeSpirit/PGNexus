@@ -57,7 +57,7 @@ export interface UserSubscription {
 // Combined feed type for unified display
 export interface UnifiedFeed {
   id: number | string;
-  type: 'rss' | 'email' | 'news' | 'daily-updates';
+  type: 'rss' | 'email' | 'news' | 'daily-updates' | 'social' | 'patch';
   title: string;
   title_zh?: string;
   content?: string;
@@ -67,6 +67,9 @@ export interface UnifiedFeed {
   summary_english?: string;
   summary_chinese?: string;
   imgurl?: string;
+  patchfile?: string;
+  risk?: string;
+  risk_zh?: string;
   metadata?: Record<string, any>;
 }
 
