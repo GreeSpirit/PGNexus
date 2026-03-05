@@ -295,6 +295,55 @@ CREATE TABLE IF NOT EXISTS daily_updates (
 CREATE INDEX daily_updates_index ON daily_updates(jobid);
 CREATE UNIQUE INDEX daily_updates_index2 ON daily_updates(jobid, title);
 
+CREATE TABLE IF NOT EXISTS feed_sources (
+    id              BIGSERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,  -- human label
+    type            VARCHAR(32) NOT NULL,   -- rss_feeds, email_feeds, news_feeds, social_feeds, event_feeds
+    platform        VARCHAR(255),   -- needed when type = social_feeds (x, linkedin..etc)
+    url             TEXT,           -- needed when type = rss_feeds or social_feeds
+    email           VARCHAR(255),   -- needed when type = email
+    config          TEXT,           -- extra configs or context for each source
+    is_active       BOOLEAN DEFAULT true,
+    last_error      TEXT,
+    error_count     INT NOT NULL DEFAULT 0,
+    owner_id        INT REFERENCES users(id),
+    created_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    last_fetched_at TIMESTAMPTZ,
+	CONSTRAINT one_identifier_only CHECK (url IS NULL OR email IS NULL)
+);
+CREATE INDEX ON feed_sources (type);
+CREATE INDEX ON feed_sources (is_active);
+CREATE INDEX ON feed_sources (last_fetched_at);
+CREATE INDEX ON feed_sources (owner_id);
+CREATE UNIQUE INDEX ON feed_sources(url) WHERE TYPE = 'rss_feeds'; -- rss_feeds type cannot have duplicate url
+CREATE UNIQUE INDEX ON feed_sources(url) WHERE TYPE = 'event_feeds'; -- event_feeds type cannot have duplicate url
+CREATE UNIQUE INDEX ON feed_sources(email) WHERE TYPE = 'email_feeds'; -- email_feeds type cannot have duplicate email
+CREATE UNIQUE INDEX ON feed_sources (url)   WHERE type = 'news_feeds' AND url IS NOT NULL; -- news_feeds type cannot have duplicate url
+CREATE UNIQUE INDEX ON feed_sources (email) WHERE type = 'news_feeds' AND email IS NOT NULL; -- news_feeds type cannot have duplicate email
+CREATE UNIQUE INDEX ON feed_sources(platform, url) WHERE TYPE = 'social_feeds'; -- social_feeds type cannot have duplicate url and platform
+
+-- contributor info and emails
+CREATE TABLE IF NOT EXISTS contributor_stats (
+	id              		BIGSERIAL PRIMARY KEY,
+    name            		VARCHAR(255) NOT NULL,
+	github_profile			TEXT,
+	linkedin_profile		TEXT,
+	organization 			VARCHAR(255),
+	country					CHAR(2),
+	message_count			INT DEFAULT 0,
+	influence				SMALLINT CHECK (influence BETWEEN 1 AND 5) DEFAULT 1,
+	created_at      		TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX ON contributor_stats(name);
+
+CREATE TABLE IF NOT EXISTS contributor_emails (
+    email TEXT PRIMARY KEY,
+    contributor_id BIGINT NOT NULL REFERENCES contributor_stats(id),
+    created_at TIMESTAMP DEFAULT now()
+);
+
+
 -- =====================================================
 -- 3. COMMENTS FOR DOCUMENTATION
 -- =====================================================
