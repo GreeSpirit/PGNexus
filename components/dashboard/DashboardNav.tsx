@@ -49,6 +49,10 @@ export function DashboardNav() {
       href: "/tech-news",
       label: t(trans.nav.industryNews),
     },
+    {
+      href: "/social-media",
+      label: t(trans.nav.socialMedia),
+    },
   ];
 
   const knowledgeItems = [

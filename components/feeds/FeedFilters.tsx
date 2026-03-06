@@ -12,7 +12,7 @@ interface FeedFiltersProps {
 
 export interface FilterState {
   query: string;
-  feedType: "all" | "rss" | "email" | "news" | "daily-updates";
+  feedType: "all" | "rss" | "email" | "news" | "daily-updates" | "social" | "patch";
   dateFrom?: string;
   dateTo?: string;
 }
@@ -136,6 +136,28 @@ export function FeedFilters({ onFilterChange }: FeedFiltersProps) {
             onClick={() => setFeedType("daily-updates")}
           >
             Daily Updates
+          </Badge>
+          <Badge
+            variant={feedType === "social" ? "default" : "outline"}
+            className={`cursor-pointer px-3 py-1 text-xs font-medium ${
+              feedType === "social"
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                : "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 dark:border-rose-800"
+            }`}
+            onClick={() => setFeedType("social")}
+          >
+            Social
+          </Badge>
+          <Badge
+            variant={feedType === "patch" ? "default" : "outline"}
+            className={`cursor-pointer px-3 py-1 text-xs font-medium ${
+              feedType === "patch"
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                : "bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-400 border-violet-200 dark:border-violet-800"
+            }`}
+            onClick={() => setFeedType("patch")}
+          >
+            Patch
           </Badge>
         </div>
       </div>

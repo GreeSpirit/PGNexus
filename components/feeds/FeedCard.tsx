@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { formatRelativeTime } from "@/lib/utils/date";
 import type { UnifiedFeed } from "@/lib/types/database";
-import { ExternalLink, Mail, Rss, Newspaper, FileText } from "lucide-react";
+import { ExternalLink, Mail, Rss, Newspaper, FileText, Share2, FileCode2, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 interface FeedCardProps {
@@ -21,6 +21,10 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
         return <Newspaper className="h-4 w-4" />;
       case 'daily-updates':
         return <FileText className="h-4 w-4" />;
+      case 'social':
+        return <Share2 className="h-4 w-4" />;
+      case 'patch':
+        return <FileCode2 className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
     }
@@ -36,6 +40,10 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
         return 'border-l-4 border-l-purple-500 hover:border-l-purple-600 hover:shadow-purple-200/50 dark:hover:shadow-purple-900/30';
       case 'daily-updates':
         return 'border-l-4 border-l-green-500 hover:border-l-green-600 hover:shadow-green-200/50 dark:hover:shadow-green-900/30';
+      case 'social':
+        return 'border-l-4 border-l-rose-500 hover:border-l-rose-600 hover:shadow-rose-200/50 dark:hover:shadow-rose-900/30';
+      case 'patch':
+        return 'border-l-4 border-l-violet-500 hover:border-l-violet-600 hover:shadow-violet-200/50 dark:hover:shadow-violet-900/30';
       default:
         return 'border-l-4 border-l-slate-500 hover:border-l-slate-600';
     }
@@ -51,12 +59,26 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
         return 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400 border-purple-200 dark:border-purple-800';
       case 'daily-updates':
         return 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400 border-green-200 dark:border-green-800';
+      case 'social':
+        return 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 dark:border-rose-800';
+      case 'patch':
+        return 'bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-400 border-violet-200 dark:border-violet-800';
       default:
         return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
     }
   };
 
   const isDailyUpdate = feed.type === 'daily-updates';
+  const isSocial = feed.type === 'social';
+  const isPatch = feed.type === 'patch';
+
+  const riskBadgeClass = (risk: string) => {
+    const r = risk.toLowerCase();
+    if (r.includes('low')) return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+    if (r.includes('medium') || r.includes('moderate')) return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+    if (r.includes('high') || r.includes('critical')) return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+    return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+  };
 
   return (
     <Card className={`backdrop-blur-sm bg-white/90 dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-700/60 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer ${getCardStyles()}`}>
@@ -66,11 +88,17 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
             <div className="flex items-center gap-2 mb-3">
               <Badge className={`flex items-center gap-1.5 font-medium px-2.5 py-1 ${getBadgeStyles()}`}>
                 {getIcon()}
-                {feed.type === 'daily-updates' ? 'DAILY UPDATE' : feed.type.toUpperCase()}
+                {feed.type === 'daily-updates' ? 'DAILY UPDATE' : feed.type === 'social' ? 'SOCIAL' : feed.type === 'patch' ? 'PATCH' : feed.type.toUpperCase()}
               </Badge>
               {feed.source && feed.type !== 'news' && (
                 <span className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate bg-slate-100/80 dark:bg-slate-800/80 px-2 py-1 rounded-md">
                   {feed.source}
+                </span>
+              )}
+              {isPatch && feed.risk && (
+                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${riskBadgeClass(language === 'zh' && feed.risk_zh ? feed.risk_zh : feed.risk)}`}>
+                  <ShieldAlert className="h-3 w-3" />
+                  {language === 'zh' && feed.risk_zh ? feed.risk_zh : feed.risk}
                 </span>
               )}
             </div>
@@ -85,6 +113,13 @@ export function FeedCard({ feed, language = "en" }: FeedCardProps) {
               ) : feed.type === 'rss' && feed.link ? (
                 <Link
                   href={`/tech-blogs?url=${encodeURIComponent(feed.link)}`}
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                >
+                  <span className="group-hover:underline">{feed.title}</span>
+                </Link>
+              ) : (isSocial || isPatch) && feed.link ? (
+                <Link
+                  href={feed.link}
                   className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
                 >
                   <span className="group-hover:underline">{feed.title}</span>

@@ -15,6 +15,36 @@ interface EmailSubject {
   lastactivity: string;
 }
 
+function transformSocialFeeds(rows: any[], lang: string): UnifiedFeed[] {
+  return rows.map((f) => ({
+    id: `${f.jobid}-${f.url}`,
+    type: 'social' as const,
+    title: (lang === 'zh' && f.title_zh) ? f.title_zh : f.title,
+    date: f.pubdate,
+    source: f.author,
+    link: `/social-media?url=${encodeURIComponent(f.url)}`,
+    summary_english: f.summary,
+    summary_chinese: f.summary_zh,
+  }));
+}
+
+function transformPatchFeeds(rows: any[], lang: string): UnifiedFeed[] {
+  return rows.map((p) => ({
+    id: p.jobid,
+    type: 'patch' as const,
+    title: (lang === 'zh' && p.summary_zh)
+      ? p.patchfile.replace(/^v\d+-\d+-/, '').replace(/\.patch$/, '')
+      : p.patchfile.replace(/^v\d+-\d+-/, '').replace(/\.patch$/, ''),
+    date: null,
+    link: `/community-patches?jobid=${p.jobid}&patchfile=${encodeURIComponent(p.patchfile)}&threadid=${encodeURIComponent(p.threadid || '')}`,
+    summary_english: p.summary,
+    summary_chinese: p.summary_zh,
+    patchfile: p.patchfile,
+    risk: p.risk,
+    risk_zh: p.risk_zh,
+  }));
+}
+
 export default function DashboardPage() {
   const { language, t } = useLanguage();
   const [feeds, setFeeds] = useState<UnifiedFeed[]>([]);
@@ -49,8 +79,39 @@ export default function DashboardPage() {
       // Check if we're filtering by email type OR searching with "all" that includes emails
       const isEmailType = isSearchMode && filters.feedType === "email";
       const isAllTypeWithSearch = isSearchMode && filters.feedType === "all" && filters.query;
+      const isSocialType = filters.feedType === "social";
+      const isPatchType = filters.feedType === "patch";
 
-      if (isEmailType) {
+      if (isSocialType) {
+        const endpoint = filters.query
+          ? `/api/social-feeds/search?q=${encodeURIComponent(filters.query)}&limit=${limit}&offset=${newOffset}`
+          : `/api/social-feeds/latest?limit=${limit}&offset=${newOffset}`;
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        const transformed = transformSocialFeeds(data.feeds ?? [], language);
+        if (append) {
+          setFeeds((prev) => [...prev, ...transformed]);
+        } else {
+          setFeeds(transformed);
+        }
+        setEmailSubjects([]);
+        setHasMore(data.hasMore ?? false);
+        setOffset(newOffset);
+      } else if (isPatchType) {
+        const patchParams = new URLSearchParams({ limit: limit.toString(), offset: newOffset.toString() });
+        if (filters.query) patchParams.set('q', filters.query);
+        const res = await fetch(`/api/patch-reports/search?${patchParams}`);
+        const data = await res.json();
+        const transformed = transformPatchFeeds(data.patches ?? [], language);
+        if (append) {
+          setFeeds((prev) => [...prev, ...transformed]);
+        } else {
+          setFeeds(transformed);
+        }
+        setEmailSubjects([]);
+        setHasMore(data.hasMore ?? false);
+        setOffset(newOffset);
+      } else if (isEmailType) {
         // Use email subjects search API
         url = `/api/email-feeds/subjects-search`;
         if (filters.query) params.set("q", filters.query);
@@ -68,43 +129,39 @@ export default function DashboardPage() {
         setHasMore(data.hasMore);
         setOffset(newOffset);
       } else if (isAllTypeWithSearch) {
-        // Fetch both email subjects and other feeds when searching "all"
-        // Fetch email subjects
-        const emailParams = new URLSearchParams({
-          limit: Math.ceil(limit / 2).toString(),
-          offset: Math.floor(newOffset / 2).toString(),
-        });
-        if (filters.query) emailParams.set("q", filters.query);
+        // Fetch all sources in parallel when searching "all"
+        const q = filters.query;
+        const emailParams = new URLSearchParams({ limit: limit.toString(), offset: Math.floor(newOffset / 2).toString(), q });
+        const otherParams = new URLSearchParams({ limit: limit.toString(), offset: Math.floor(newOffset / 2).toString(), q });
+        const socialParams = new URLSearchParams({ limit: limit.toString(), offset: Math.floor(newOffset / 2).toString(), q });
+        const patchParams2 = new URLSearchParams({ limit: limit.toString(), offset: Math.floor(newOffset / 2).toString(), q });
 
-        // Fetch other feeds (rss, news, daily-updates)
-        const otherParams = new URLSearchParams({
-          limit: limit.toString(),
-          offset: Math.floor(newOffset / 2).toString(),
-        });
-        if (filters.query) otherParams.set("q", filters.query);
-        // Don't set type so it searches all, we'll filter out emails on frontend
-
-        const [emailResponse, otherResponse] = await Promise.all([
+        const [emailResponse, otherResponse, socialResponse, patchResponse] = await Promise.all([
           fetch(`/api/email-feeds/subjects-search?${emailParams}`),
-          fetch(`/api/feeds/search?${otherParams}`)
+          fetch(`/api/feeds/search?${otherParams}`),
+          fetch(`/api/social-feeds/search?${socialParams}`),
+          fetch(`/api/patch-reports/search?${patchParams2}`),
         ]);
 
         const emailData = await emailResponse.json();
         const otherData = await otherResponse.json();
+        const socialData = await socialResponse.json();
+        const patchData = await patchResponse.json();
 
-        // Filter out email type from other feeds since we're handling them separately
         const nonEmailFeeds = otherData.feeds.filter((f: UnifiedFeed) => f.type !== 'email');
+        const socialFeeds2 = transformSocialFeeds(socialData.feeds ?? [], language);
+        const patchFeeds2 = transformPatchFeeds(patchData.patches ?? [], language);
+        const allOtherFeeds = [...nonEmailFeeds, ...socialFeeds2, ...patchFeeds2];
 
         if (append) {
           setEmailSubjects((prev) => [...prev, ...emailData.subjects]);
-          setFeeds((prev) => [...prev, ...nonEmailFeeds]);
+          setFeeds((prev) => [...prev, ...allOtherFeeds]);
         } else {
           setEmailSubjects(emailData.subjects);
-          setFeeds(nonEmailFeeds);
+          setFeeds(allOtherFeeds);
         }
 
-        // Determine if there's more data
-        const hasMoreData = emailData.hasMore || otherData.hasMore;
+        const hasMoreData = emailData.hasMore || otherData.hasMore || socialData.hasMore || patchData.hasMore;
         setHasMore(hasMoreData);
         setOffset(newOffset);
       } else if (isSearchMode && (filters.query || filters.feedType !== "all" || filters.dateFrom || filters.dateTo)) {
@@ -165,7 +222,7 @@ export default function DashboardPage() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [subscribedOnly, isSearchMode, filters]);
+  }, [subscribedOnly, isSearchMode, filters, language]);
 
   useEffect(() => {
     if (!isSearchMode) {
@@ -198,8 +255,29 @@ export default function DashboardPage() {
 
         const isEmailType = newFilters.feedType === "email";
         const isAllTypeWithSearch = newFilters.feedType === "all" && newFilters.query;
+        const isSocialType = newFilters.feedType === "social";
+        const isPatchType = newFilters.feedType === "patch";
 
-        if (isEmailType) {
+        if (isSocialType) {
+          const endpoint = newFilters.query
+            ? `/api/social-feeds/search?q=${encodeURIComponent(newFilters.query)}&limit=${limit}&offset=0`
+            : `/api/social-feeds/latest?limit=${limit}&offset=0`;
+          const res = await fetch(endpoint);
+          const data = await res.json();
+          setFeeds(transformSocialFeeds(data.feeds ?? [], language));
+          setEmailSubjects([]);
+          setHasMore(data.hasMore ?? false);
+          setOffset(0);
+        } else if (isPatchType) {
+          const pParams = new URLSearchParams({ limit: limit.toString(), offset: '0' });
+          if (newFilters.query) pParams.set('q', newFilters.query);
+          const res = await fetch(`/api/patch-reports/search?${pParams}`);
+          const data = await res.json();
+          setFeeds(transformPatchFeeds(data.patches ?? [], language));
+          setEmailSubjects([]);
+          setHasMore(data.hasMore ?? false);
+          setOffset(0);
+        } else if (isEmailType) {
           // Fetch email subjects only
           if (newFilters.query) params.set("q", newFilters.query);
 
@@ -211,35 +289,33 @@ export default function DashboardPage() {
           setHasMore(data.hasMore);
           setOffset(0);
         } else if (isAllTypeWithSearch) {
-          // Fetch both email subjects and other feeds when searching "all"
-          const emailParams = new URLSearchParams({
-            limit: Math.ceil(limit / 2).toString(),
-            offset: "0",
-          });
-          if (newFilters.query) emailParams.set("q", newFilters.query);
+          // Fetch all sources in parallel when searching "all"
+          const q = newFilters.query;
+          const emailParams = new URLSearchParams({ limit: limit.toString(), offset: "0", q });
+          const otherParams = new URLSearchParams({ limit: limit.toString(), offset: "0", q });
+          const socialParams = new URLSearchParams({ limit: limit.toString(), offset: "0", q });
+          const patchParams2 = new URLSearchParams({ limit: limit.toString(), offset: "0", q });
 
-          const otherParams = new URLSearchParams({
-            limit: limit.toString(),
-            offset: "0",
-          });
-          if (newFilters.query) otherParams.set("q", newFilters.query);
-          // Don't set type so it searches all, we'll filter out emails on frontend
-
-          const [emailResponse, otherResponse] = await Promise.all([
+          const [emailResponse, otherResponse, socialResponse, patchResponse] = await Promise.all([
             fetch(`/api/email-feeds/subjects-search?${emailParams}`),
-            fetch(`/api/feeds/search?${otherParams}`)
+            fetch(`/api/feeds/search?${otherParams}`),
+            fetch(`/api/social-feeds/search?${socialParams}`),
+            fetch(`/api/patch-reports/search?${patchParams2}`),
           ]);
 
           const emailData = await emailResponse.json();
           const otherData = await otherResponse.json();
+          const socialData = await socialResponse.json();
+          const patchData = await patchResponse.json();
 
-          // Filter out email type from other feeds since we're handling them separately
           const nonEmailFeeds = otherData.feeds.filter((f: UnifiedFeed) => f.type !== 'email');
+          const socialFeeds2 = transformSocialFeeds(socialData.feeds ?? [], language);
+          const patchFeeds2 = transformPatchFeeds(patchData.patches ?? [], language);
 
           setEmailSubjects(emailData.subjects);
-          setFeeds(nonEmailFeeds);
+          setFeeds([...nonEmailFeeds, ...socialFeeds2, ...patchFeeds2]);
 
-          const hasMoreData = emailData.hasMore || otherData.hasMore;
+          const hasMoreData = emailData.hasMore || otherData.hasMore || socialData.hasMore || patchData.hasMore;
           setHasMore(hasMoreData);
           setOffset(0);
         } else {

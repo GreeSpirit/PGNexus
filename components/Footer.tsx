@@ -15,6 +15,7 @@ export function Footer() {
     { href: "/community-patches", label: t(trans.nav.communityPatches) },
     { href: "/tech-blogs", label: t(trans.nav.techBlogs) },
     { href: "/tech-news", label: t(trans.nav.industryNews) },
+    { href: "/social-media", label: t(trans.nav.socialMedia) },
   ];
 
   const knowledgeLinks = [
