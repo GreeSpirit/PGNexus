@@ -18,57 +18,33 @@ type ProfileTab = "dashboard" | "profile" | "subscriptions" | "bot" | "suggest" 
 type RbacInnerTab = "users" | "roles" | "permissions" | "api-permissions" | "source-scopes" | "activity-logs";
 type RbacModalType = null | "create-user" | "create-role" | "role-permissions" | "role-api-permissions" | "source-scopes" | "edit-user-roles" | "confirm-freeze";
 
-type SourceType = "rss" | "url" | "api" | "email" | "other";
-type SourceCategory = "blog" | "mailing_list" | "patch" | "news" | "event" | "other";
-type FrequencyMode = "hourly" | "daily" | "cron";
-type AuthType = "none" | "api_key" | "oauth";
-type DedupeStrategy = "hash" | "timestamp" | "hash_and_timestamp" | "none";
+type FeedSourceType = "rss_feeds" | "email_feeds" | "news_feeds" | "social_feeds" | "event_feeds";
 
 interface DataSourceRecord {
   id: number;
   name: string;
-  description: string | null;
-  sourceType: SourceType;
-  category: SourceCategory;
-  endpoint: string;
-  isEnabled: boolean;
-  frequencyMode: FrequencyMode;
-  frequencyValue: string | null;
-  authType: AuthType;
-  authConfig: Record<string, unknown>;
-  timeoutSeconds: number;
-  retryCount: number;
-  retryBackoffSeconds: number;
-  dedupeStrategy: DedupeStrategy;
-  dedupeField: string | null;
-  maxFetchItems: number;
-  lastSuccessAt: string | null;
-  lastSuccessDedupeTs: string | null;
-  lastErrorLog: string | null;
-  avgProcessingMs: number | null;
-  anomalyAlertEnabled: boolean;
-  anomalyThresholdPct: number;
+  type: FeedSourceType;
+  platform: string | null;
+  url: string | null;
+  email: string | null;
+  config: string | null;
+  isActive: boolean;
+  lastError: string | null;
+  errorCount: number;
+  ownerId: number | null;
+  ownerName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lastFetchedAt: string | null;
 }
 
 interface DataSourceFormState {
   name: string;
-  description: string;
-  sourceType: SourceType;
-  category: SourceCategory;
-  endpoint: string;
-  isEnabled: boolean;
-  frequencyMode: FrequencyMode;
-  frequencyValue: string;
-  authType: AuthType;
-  authConfigText: string;
-  timeoutSeconds: number;
-  retryCount: number;
-  retryBackoffSeconds: number;
-  dedupeStrategy: DedupeStrategy;
-  dedupeField: string;
-  maxFetchItems: number;
-  anomalyAlertEnabled: boolean;
-  anomalyThresholdPct: number;
+  type: FeedSourceType;
+  platform: string;
+  url: string;
+  email: string;
+  isActive: boolean;
 }
 
 interface RbacUser {
@@ -131,23 +107,11 @@ interface RbacActivityLog {
 
 const defaultDataSourceForm: DataSourceFormState = {
   name: "",
-  description: "",
-  sourceType: "rss",
-  category: "news",
-  endpoint: "",
-  isEnabled: true,
-  frequencyMode: "daily",
-  frequencyValue: "",
-  authType: "none",
-  authConfigText: "{}",
-  timeoutSeconds: 30,
-  retryCount: 3,
-  retryBackoffSeconds: 10,
-  dedupeStrategy: "hash",
-  dedupeField: "",
-  maxFetchItems: 100,
-  anomalyAlertEnabled: true,
-  anomalyThresholdPct: 200,
+  type: "rss_feeds",
+  platform: "",
+  url: "",
+  email: "",
+  isActive: true,
 };
 
 function UserProfileContent() {
@@ -182,6 +146,13 @@ function UserProfileContent() {
   const [suggestHistoryLoading, setSuggestHistoryLoading] = useState(false);
   const [dataSources, setDataSources] = useState<DataSourceRecord[]>([]);
   const [dataSourcesLoading, setDataSourcesLoading] = useState(false);
+  const [dataSourcePage, setDataSourcePage] = useState(1);
+  const [dataSourcePageSize, setDataSourcePageSize] = useState(20);
+  const [dataSourceTotal, setDataSourceTotal] = useState(0);
+  const [dataSourceNameInput, setDataSourceNameInput] = useState("");
+  const [dataSourceTypeInput, setDataSourceTypeInput] = useState<FeedSourceType | "all">("all");
+  const [dataSourceNameApplied, setDataSourceNameApplied] = useState("");
+  const [dataSourceTypeApplied, setDataSourceTypeApplied] = useState<FeedSourceType | "all">("all");
   const [dataSourceSaving, setDataSourceSaving] = useState(false);
   const [dataSourceMessage, setDataSourceMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [editingDataSourceId, setEditingDataSourceId] = useState<number | null>(null);
@@ -247,7 +218,14 @@ function UserProfileContent() {
     setDataSourcesLoading(true);
     setDataSourceMessage(null);
     try {
-      const response = await fetch("/api/admin/data-sources");
+      const params = new URLSearchParams({
+        page: String(dataSourcePage),
+        pageSize: String(dataSourcePageSize),
+      });
+      if (dataSourceTypeApplied !== "all") params.set("type", dataSourceTypeApplied);
+      if (dataSourceNameApplied.trim()) params.set("q", dataSourceNameApplied.trim());
+
+      const response = await fetch(`/api/admin/data-sources?${params.toString()}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -255,13 +233,14 @@ function UserProfileContent() {
       }
 
       setDataSources(data.dataSources || []);
+      setDataSourceTotal(Number(data.pagination?.total || 0));
     } catch (error) {
       console.error("Error fetching data sources:", error);
       setDataSourceMessage({ type: "error", text: t(trans.profileAdmin.failedToLoadDataSources) });
     } finally {
       setDataSourcesLoading(false);
     }
-  }, [t]);
+  }, [t, dataSourcePage, dataSourcePageSize, dataSourceTypeApplied, dataSourceNameApplied]);
 
   const fetchRbacOverview = useCallback(async () => {
     // Load users/roles/permissions/api scopes summary for RBAC tab.
@@ -485,6 +464,14 @@ function UserProfileContent() {
     router.push(`/user/profile?tab=${tab}`, { scroll: false });
   };
 
+  const dataSourceTotalPages = Math.max(1, Math.ceil(dataSourceTotal / dataSourcePageSize));
+
+  const handleDataSourceSearch = () => {
+    setDataSourcePage(1);
+    setDataSourceNameApplied(dataSourceNameInput);
+    setDataSourceTypeApplied(dataSourceTypeInput);
+  };
+
   const resetDataSourceForm = () => {
     // Reset dialog form state when opening/closing data-source modal.
     setDataSourceForm(defaultDataSourceForm);
@@ -496,23 +483,11 @@ function UserProfileContent() {
     setEditingDataSourceId(dataSource.id);
     setDataSourceForm({
       name: dataSource.name,
-      description: dataSource.description || "",
-      sourceType: dataSource.sourceType,
-      category: dataSource.category,
-      endpoint: dataSource.endpoint,
-      isEnabled: dataSource.isEnabled,
-      frequencyMode: dataSource.frequencyMode,
-      frequencyValue: dataSource.frequencyValue || "",
-      authType: dataSource.authType,
-      authConfigText: JSON.stringify(dataSource.authConfig || {}, null, 2),
-      timeoutSeconds: dataSource.timeoutSeconds,
-      retryCount: dataSource.retryCount,
-      retryBackoffSeconds: dataSource.retryBackoffSeconds,
-      dedupeStrategy: dataSource.dedupeStrategy,
-      dedupeField: dataSource.dedupeField || "",
-      maxFetchItems: dataSource.maxFetchItems,
-      anomalyAlertEnabled: dataSource.anomalyAlertEnabled,
-      anomalyThresholdPct: dataSource.anomalyThresholdPct,
+      type: dataSource.type,
+      platform: dataSource.platform || "",
+      url: dataSource.url || "",
+      email: dataSource.email || "",
+      isActive: dataSource.isActive,
     });
     setDataSourceMessage(null);
     setIsDataSourceModalOpen(true);
@@ -552,34 +527,49 @@ function UserProfileContent() {
     setDataSourceSaving(true);
     setDataSourceMessage(null);
 
-    let authConfig: Record<string, unknown> = {};
-    try {
-      authConfig = JSON.parse(dataSourceForm.authConfigText || "{}");
-    } catch {
-      setDataSourceMessage({ type: "error", text: t(trans.profileAdmin.invalidAuthConfigJson) });
+    const trimmedUrl = dataSourceForm.url.trim();
+    const trimmedEmail = dataSourceForm.email.trim();
+    const trimmedPlatform = dataSourceForm.platform.trim();
+
+    if (trimmedUrl && trimmedEmail) {
+      setDataSourceMessage({ type: "error", text: t("Only one identifier is allowed: url or email", "url 和 email 只能填写一个") });
+      setDataSourceSaving(false);
+      return;
+    }
+
+    if (dataSourceForm.type === "rss_feeds" && !trimmedUrl) {
+      setDataSourceMessage({ type: "error", text: t("RSS source requires URL", "RSS 数据源必须填写 URL") });
+      setDataSourceSaving(false);
+      return;
+    }
+    if (dataSourceForm.type === "email_feeds" && !trimmedEmail) {
+      setDataSourceMessage({ type: "error", text: t("Email source requires email", "Email 数据源必须填写 email") });
+      setDataSourceSaving(false);
+      return;
+    }
+    if (dataSourceForm.type === "news_feeds" && !trimmedUrl && !trimmedEmail) {
+      setDataSourceMessage({ type: "error", text: t("News source requires URL or email", "News 数据源必须填写 URL 或 email") });
+      setDataSourceSaving(false);
+      return;
+    }
+    if (dataSourceForm.type === "social_feeds" && (!trimmedUrl || !trimmedPlatform)) {
+      setDataSourceMessage({ type: "error", text: t("Social source requires platform and URL", "Social 数据源必须填写 platform 和 URL") });
+      setDataSourceSaving(false);
+      return;
+    }
+    if (dataSourceForm.type === "event_feeds" && !trimmedUrl) {
+      setDataSourceMessage({ type: "error", text: t("Event source requires URL", "Event 数据源必须填写 URL") });
       setDataSourceSaving(false);
       return;
     }
 
     const payload = {
       name: dataSourceForm.name,
-      description: dataSourceForm.description,
-      sourceType: dataSourceForm.sourceType,
-      category: dataSourceForm.category,
-      endpoint: dataSourceForm.endpoint,
-      isEnabled: dataSourceForm.isEnabled,
-      frequencyMode: dataSourceForm.frequencyMode,
-      frequencyValue: dataSourceForm.frequencyValue,
-      authType: dataSourceForm.authType,
-      authConfig,
-      timeoutSeconds: dataSourceForm.timeoutSeconds,
-      retryCount: dataSourceForm.retryCount,
-      retryBackoffSeconds: dataSourceForm.retryBackoffSeconds,
-      dedupeStrategy: dataSourceForm.dedupeStrategy,
-      dedupeField: dataSourceForm.dedupeField,
-      maxFetchItems: dataSourceForm.maxFetchItems,
-      anomalyAlertEnabled: dataSourceForm.anomalyAlertEnabled,
-      anomalyThresholdPct: dataSourceForm.anomalyThresholdPct,
+      type: dataSourceForm.type,
+      platform: dataSourceForm.type === "social_feeds" ? trimmedPlatform : null,
+      url: trimmedUrl || null,
+      email: trimmedEmail || null,
+      isActive: dataSourceForm.isActive,
     };
 
     try {
@@ -846,162 +836,62 @@ function UserProfileContent() {
                 onChange={(e) => setDataSourceForm((prev) => ({ ...prev, name: e.target.value }))}
                 required
               />
-              <Input
-                placeholder={t(trans.profileAdmin.description)}
-                value={dataSourceForm.description}
-                onChange={(e) => setDataSourceForm((prev) => ({ ...prev, description: e.target.value }))}
-              />
-              <Input
-                placeholder={t(trans.profileAdmin.endpoint)}
-                value={dataSourceForm.endpoint}
-                onChange={(e) => setDataSourceForm((prev) => ({ ...prev, endpoint: e.target.value }))}
-                required
-              />
-
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={dataSourceForm.sourceType}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, sourceType: e.target.value as SourceType }))}
-                  className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                >
-                  <option value="rss">RSS</option>
-                  <option value="url">URL</option>
-                  <option value="api">API</option>
-                  <option value="email">Email</option>
-                  <option value="other">Other</option>
-                </select>
-                <select
-                  value={dataSourceForm.category}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, category: e.target.value as SourceCategory }))}
-                  className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                >
-                  <option value="blog">{t(trans.profileAdmin.blog)}</option>
-                  <option value="mailing_list">{t(trans.profileAdmin.mailingList)}</option>
-                  <option value="patch">Patch</option>
-                  <option value="news">{t(trans.profileAdmin.news)}</option>
-                  <option value="event">{t(trans.profileAdmin.event)}</option>
-                  <option value="other">{t(trans.profileAdmin.other)}</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={dataSourceForm.frequencyMode}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, frequencyMode: e.target.value as FrequencyMode }))}
-                  className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                >
-                  <option value="hourly">{t(trans.profileAdmin.hourly)}</option>
-                  <option value="daily">{t(trans.profileAdmin.daily)}</option>
-                  <option value="cron">Cron</option>
-                </select>
-                <Input
-                  placeholder={t(trans.profileAdmin.frequencyValue)}
-                  value={dataSourceForm.frequencyValue}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, frequencyValue: e.target.value }))}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={dataSourceForm.authType}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, authType: e.target.value as AuthType }))}
-                  className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
-                >
-                  <option value="none">{t(trans.profileAdmin.noAuth)}</option>
-                  <option value="api_key">API Key</option>
-                  <option value="oauth">OAuth</option>
-                </select>
-                <Input
-                  placeholder={t(trans.profileAdmin.dedupeField)}
-                  value={dataSourceForm.dedupeField}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, dedupeField: e.target.value }))}
-                />
-              </div>
-
               <select
-                value={dataSourceForm.dedupeStrategy}
-                onChange={(e) => setDataSourceForm((prev) => ({ ...prev, dedupeStrategy: e.target.value as DedupeStrategy }))}
+                value={dataSourceForm.type}
+                onChange={(e) => {
+                  const nextType = e.target.value as FeedSourceType;
+                  setDataSourceForm((prev) => ({
+                    ...prev,
+                    type: nextType,
+                    platform: nextType === "social_feeds" ? prev.platform : "",
+                    url: nextType === "email_feeds" ? "" : prev.url,
+                    email: nextType === "rss_feeds" || nextType === "event_feeds" || nextType === "social_feeds" ? "" : prev.email,
+                  }));
+                }}
                 className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               >
-                <option value="hash">{t(trans.profileAdmin.hashDedupe)}</option>
-                <option value="timestamp">{t(trans.profileAdmin.timestampDedupe)}</option>
-                <option value="hash_and_timestamp">{t(trans.profileAdmin.hashTimestampDedupe)}</option>
-                <option value="none">{t(trans.profileAdmin.noDedupe)}</option>
+                <option value="rss_feeds">rss_feeds</option>
+                <option value="email_feeds">email_feeds</option>
+                <option value="news_feeds">news_feeds</option>
+                <option value="social_feeds">social_feeds</option>
+                <option value="event_feeds">event_feeds</option>
               </select>
 
-              <textarea
-                rows={3}
-                value={dataSourceForm.authConfigText}
-                onChange={(e) => setDataSourceForm((prev) => ({ ...prev, authConfigText: e.target.value }))}
-                className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-mono"
-                placeholder={t('Auth config JSON, e.g. {"apiKey":"***"}', '认证配置 JSON，例如 {"apiKey":"***"}')}
-              />
-
-              <div className="grid grid-cols-2 gap-3">
+              {(dataSourceForm.type === "rss_feeds" || dataSourceForm.type === "social_feeds" || dataSourceForm.type === "event_feeds" || dataSourceForm.type === "news_feeds") && (
                 <Input
-                  type="number"
-                  min={1}
-                  max={600}
-                  value={dataSourceForm.timeoutSeconds}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, timeoutSeconds: Number(e.target.value) || 30 }))}
-                  placeholder={t(trans.profileAdmin.timeout)}
+                  placeholder={t("URL", "URL")}
+                  value={dataSourceForm.url}
+                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, url: e.target.value }))}
+                  required={dataSourceForm.type === "rss_feeds" || dataSourceForm.type === "social_feeds" || dataSourceForm.type === "event_feeds"}
                 />
-                <Input
-                  type="number"
-                  min={0}
-                  max={10}
-                  value={dataSourceForm.retryCount}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, retryCount: Number(e.target.value) || 0 }))}
-                  placeholder={t(trans.profileAdmin.retryCount)}
-                />
-              </div>
+              )}
 
-              <div className="grid grid-cols-2 gap-3">
+              {(dataSourceForm.type === "email_feeds" || dataSourceForm.type === "news_feeds") && (
                 <Input
-                  type="number"
-                  min={0}
-                  max={3600}
-                  value={dataSourceForm.retryBackoffSeconds}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, retryBackoffSeconds: Number(e.target.value) || 0 }))}
-                  placeholder={t(trans.profileAdmin.retryBackoffSeconds)}
+                  placeholder={t("Email", "邮箱")}
+                  value={dataSourceForm.email}
+                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, email: e.target.value }))}
+                  required={dataSourceForm.type === "email_feeds"}
                 />
+              )}
+
+              {dataSourceForm.type === "social_feeds" && (
                 <Input
-                  type="number"
-                  min={1}
-                  max={5000}
-                  value={dataSourceForm.maxFetchItems}
-                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, maxFetchItems: Number(e.target.value) || 1 }))}
-                  placeholder={t(trans.profileAdmin.maxFetchItems)}
+                  placeholder={t("Platform (linkedin / x)", "平台（linkedin / x）")}
+                  value={dataSourceForm.platform}
+                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, platform: e.target.value }))}
+                  required
                 />
-              </div>
+              )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={dataSourceForm.isEnabled}
-                    onChange={(e) => setDataSourceForm((prev) => ({ ...prev, isEnabled: e.target.checked }))}
-                  />
-                  {t(trans.profileAdmin.enableDataSource)}
-                </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={dataSourceForm.anomalyAlertEnabled}
-                    onChange={(e) => setDataSourceForm((prev) => ({ ...prev, anomalyAlertEnabled: e.target.checked }))}
-                  />
-                  {t(trans.profileAdmin.dataVolumeAnomalyAlert)}
-                </label>
-              </div>
-
-              <Input
-                type="number"
-                min={100}
-                max={1000}
-                value={dataSourceForm.anomalyThresholdPct}
-                onChange={(e) => setDataSourceForm((prev) => ({ ...prev, anomalyThresholdPct: Number(e.target.value) || 100 }))}
-                placeholder={t(trans.profileAdmin.anomalyThresholdPercent)}
-              />
+              <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={dataSourceForm.isActive}
+                  onChange={(e) => setDataSourceForm((prev) => ({ ...prev, isActive: e.target.checked }))}
+                />
+                {t("Active", "启用")}
+              </label>
 
               <Button type="submit" disabled={dataSourceSaving} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                 <Save className="h-4 w-4 mr-2" />
@@ -2351,6 +2241,29 @@ function UserProfileContent() {
                     </div>
                   </div>
 
+                  <div className="grid md:grid-cols-3 gap-2">
+                    <Input
+                      value={dataSourceNameInput}
+                      onChange={(e) => setDataSourceNameInput(e.target.value)}
+                      placeholder={t("Name", "名称")}
+                    />
+                    <select
+                      value={dataSourceTypeInput}
+                      onChange={(e) => setDataSourceTypeInput(e.target.value as FeedSourceType | "all")}
+                      className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                    >
+                      <option value="all">{t("All types", "全部类型")}</option>
+                      <option value="rss_feeds">rss_feeds</option>
+                      <option value="email_feeds">email_feeds</option>
+                      <option value="news_feeds">news_feeds</option>
+                      <option value="social_feeds">social_feeds</option>
+                      <option value="event_feeds">event_feeds</option>
+                    </select>
+                    <Button variant="outline" size="sm" onClick={handleDataSourceSearch}>
+                      {t("Search", "查询")}
+                    </Button>
+                  </div>
+
                   {dataSourcesLoading ? (
                     <div className="text-sm text-slate-500 dark:text-slate-400">{t(trans.profileAdmin.loading)}</div>
                   ) : dataSources.length === 0 ? (
@@ -2365,30 +2278,31 @@ function UserProfileContent() {
                             <div>
                               <h4 className="text-base font-semibold text-slate-800 dark:text-slate-200">{item.name}</h4>
                               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                {t(trans.profileAdmin.type)} {item.sourceType.toUpperCase()} | {t(trans.profileAdmin.category)} {item.category} | {t(trans.profileAdmin.frequency)} {item.frequencyMode}
-                                {item.frequencyValue ? ` (${item.frequencyValue})` : ""}
+                                {t(trans.profileAdmin.type)} {item.type}
                               </p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 break-all">{item.endpoint}</p>
+                              {item.url && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 break-all">URL: {item.url}</p>}
+                              {item.email && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 break-all">Email: {item.email}</p>}
                             </div>
                             <span
                               className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                                item.isEnabled
+                                item.isActive
                                   ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                                   : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                               }`}
                             >
-                              {item.isEnabled ? t(trans.profileAdmin.enabled) : t(trans.profileAdmin.disabled)}
+                              {item.isActive ? t(trans.profileAdmin.active) : t(trans.profileAdmin.disabled)}
                             </span>
                           </div>
 
                           <div className="grid md:grid-cols-2 gap-3 mt-4 text-xs text-slate-600 dark:text-slate-400">
-                            <div>{t(trans.profileAdmin.lastSuccessfulFetch)} {item.lastSuccessAt ? new Date(item.lastSuccessAt).toLocaleString() : t(trans.profileAdmin.notAvailable)}</div>
-                            <div>{t(trans.profileAdmin.lastSuccessfulDedupeTimestamp)} {item.lastSuccessDedupeTs ? new Date(item.lastSuccessDedupeTs).toLocaleString() : t(trans.profileAdmin.notAvailable)}</div>
-                            <div>{t(trans.profileAdmin.averageProcessingTime)} {item.avgProcessingMs ? `${item.avgProcessingMs} ms` : t(trans.profileAdmin.notAvailable)}</div>
-                            <div>{t(trans.profileAdmin.anomalyAlert)} {item.anomalyAlertEnabled ? `${t(trans.profileAdmin.anomalyOnWithThreshold)} ${item.anomalyThresholdPct}${t(trans.profileAdmin.percentSuffix)}` : t(trans.profileAdmin.off)}</div>
-                            <div className="md:col-span-2">
-                              {t(trans.profileAdmin.recentErrorLog)} {item.lastErrorLog ? item.lastErrorLog : t(trans.profileAdmin.notAvailable)}
-                            </div>
+                            <div>Platform: {item.platform || t(trans.profileAdmin.notAvailable)}</div>
+                            <div>Config: {item.config || t(trans.profileAdmin.notAvailable)}</div>
+                            <div>Owner: {item.ownerName || (item.ownerId ? `#${item.ownerId}` : t(trans.profileAdmin.notAvailable))}</div>
+                            <div>Error Count: {item.errorCount}</div>
+                            <div>Last Error: {item.lastError || t(trans.profileAdmin.notAvailable)}</div>
+                            <div>Last Fetched: {item.lastFetchedAt ? new Date(item.lastFetchedAt).toLocaleString() : t(trans.profileAdmin.notAvailable)}</div>
+                            <div>Created At: {new Date(item.createdAt).toLocaleString()}</div>
+                            <div>Updated At: {new Date(item.updatedAt).toLocaleString()}</div>
                           </div>
 
                           <div className="flex gap-2 mt-4">
@@ -2410,6 +2324,42 @@ function UserProfileContent() {
                       ))}
                     </div>
                   )}
+
+                  <div className="flex items-center justify-between text-sm text-slate-500">
+                    <div>
+                      {t("Total", "总计")} {dataSourceTotal} | {t("Page", "页码")} {dataSourcePage}/{dataSourceTotalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={String(dataSourcePageSize)}
+                        onChange={(e) => {
+                          setDataSourcePage(1);
+                          setDataSourcePageSize(Number(e.target.value));
+                        }}
+                        className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-1 text-xs"
+                      >
+                        <option value="10">10 / page</option>
+                        <option value="20">20 / page</option>
+                        <option value="50">50 / page</option>
+                      </select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={dataSourcePage <= 1}
+                        onClick={() => setDataSourcePage((p) => Math.max(1, p - 1))}
+                      >
+                        {t("Prev", "上一页")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={dataSourcePage >= dataSourceTotalPages}
+                        onClick={() => setDataSourcePage((p) => Math.min(dataSourceTotalPages, p + 1))}
+                      >
+                        {t("Next", "下一页")}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
               </div>

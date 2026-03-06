@@ -109,11 +109,12 @@ async function getN8nStatus(): Promise<ServiceStatus> {
 export async function getAdminDashboardOverview(): Promise<AdminDashboardOverview> {
   let databaseStatus: ServiceStatus = "up";
   try {
+    //测试数据库连接，成功则数据库状态为 up，否则为 down
     await query("SELECT 1");
   } catch {
     databaseStatus = "down";
   }
-
+  // 统计 RSS 订阅、邮件讨论和新闻文章在不同时间范围的数量
   const [rssToday, rssWeek, rssMonth] = await Promise.all([
     countByDateRange("rss_feeds", "COALESCE(pubdate, NOW())", "today"),
     countByDateRange("rss_feeds", "COALESCE(pubdate, NOW())", "week"),
@@ -144,7 +145,7 @@ export async function getAdminDashboardOverview(): Promise<AdminDashboardOvervie
   let errorTotal = 0;
   let queued = 0;
   let running = 0;
-
+  // 统计工作流运行状态，包括失败、排队和运行中的数量
   if (wfRunsExists) {
     const [todayFailed, allFailed, queuedRows, runningRows] = await Promise.all([
       query(`SELECT COUNT(*)::int AS count FROM wf_runs WHERE status = 'failed' AND created_at >= CURRENT_DATE`),
@@ -162,7 +163,7 @@ export async function getAdminDashboardOverview(): Promise<AdminDashboardOvervie
   let weekNew = 0;
   let monthNew = 0;
   let growthTrend: Array<{ date: string; count: number }> = [];
-
+  // 统计用户增长趋势，包括今日、本周和本月新增用户数量
   if (usersExists) {
     const [todayRows, weekRows, monthRows, trendRows] = await Promise.all([
       query(`SELECT COUNT(*)::int AS count FROM users WHERE created_at >= CURRENT_DATE`),
@@ -184,6 +185,7 @@ export async function getAdminDashboardOverview(): Promise<AdminDashboardOvervie
 
   let activeUsers = 0;
   let totalSubscriptions = 0;
+  // 统计活跃用户和订阅数量
   if (subsExists) {
     const [activeRows, totalRows] = await Promise.all([
       query(`SELECT COUNT(DISTINCT user_id)::int AS count FROM user_subscriptions`),

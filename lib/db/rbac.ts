@@ -62,6 +62,18 @@ export interface RbacDataSourceOption {
   name: string;
 }
 
+async function tableExists(tableName: string): Promise<boolean> {
+  const result = await query(
+    `SELECT EXISTS (
+      SELECT 1
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = $1
+    ) AS exists`,
+    [tableName]
+  );
+  return Boolean(result.rows[0]?.exists);
+}
+
 export async function listRbacUsers(): Promise<RbacUser[]> {
   const result = await query(
     `SELECT
@@ -167,11 +179,39 @@ export async function listApiPermissions(): Promise<RbacApiPermission[]> {
 }
 
 export async function listDataSourceOptions(): Promise<RbacDataSourceOption[]> {
+  const hasFeedSources = await tableExists("feed_sources");
+  const hasDataSources = await tableExists("data_sources");
+  if (hasFeedSources) {
+    const result = await query(`SELECT id, name FROM feed_sources ORDER BY name ASC`);
+    return result.rows;
+  }
+  if (!hasDataSources) return [];
   const result = await query(`SELECT id, name FROM data_sources ORDER BY name ASC`);
   return result.rows;
 }
 
 export async function listSourceScopes(): Promise<RbacSourceScope[]> {
+  const hasScopes = await tableExists("user_data_source_scopes");
+  if (!hasScopes) return [];
+
+  const hasFeedSources = await tableExists("feed_sources");
+  if (hasFeedSources) {
+    const result = await query(
+      `SELECT
+        uds.user_id AS "userId",
+        uds.data_source_id AS "dataSourceId",
+        fs.name AS "dataSourceName",
+        uds.access_level AS "accessLevel"
+      FROM user_data_source_scopes uds
+      JOIN feed_sources fs ON fs.id = uds.data_source_id
+      ORDER BY uds.user_id ASC, fs.name ASC`
+    );
+    return result.rows;
+  }
+
+  const hasDataSources = await tableExists("data_sources");
+  if (!hasDataSources) return [];
+
   const result = await query(
     `SELECT
       uds.user_id AS "userId",

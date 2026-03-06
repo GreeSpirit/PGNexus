@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteDataSource, updateDataSource, type DataSourceInput } from "@/lib/db/data-sources";
+import { deleteDataSource, updateDataSource, type DataSourceInput, type FeedSourceType } from "@/lib/db/data-sources";
 import { getCurrentUserId } from "@/lib/auth";
 
-const sourceTypes = new Set(["rss", "url", "api", "email", "other"]);
-const categories = new Set(["blog", "mailing_list", "patch", "news", "event", "other"]);
-const frequencyModes = new Set(["hourly", "daily", "cron"]);
-const authTypes = new Set(["none", "api_key", "oauth"]);
-const dedupeStrategies = new Set(["hash", "timestamp", "hash_and_timestamp", "none"]);
+const sourceTypes = new Set<FeedSourceType>(["rss_feeds", "email_feeds", "news_feeds", "social_feeds", "event_feeds"]);
 
 function parseDataSourceInput(payload: unknown): { value?: DataSourceInput; error?: string } {
   if (!payload || typeof payload !== "object") {
@@ -15,66 +11,34 @@ function parseDataSourceInput(payload: unknown): { value?: DataSourceInput; erro
 
   const p = payload as Record<string, unknown>;
   const name = typeof p.name === "string" ? p.name.trim() : "";
-  const endpoint = typeof p.endpoint === "string" ? p.endpoint.trim() : "";
+  const type = String(p.type) as FeedSourceType;
+  const platform = typeof p.platform === "string" ? p.platform.trim() : "";
+  const url = typeof p.url === "string" ? p.url.trim() : "";
+  const email = typeof p.email === "string" ? p.email.trim() : "";
 
   if (!name) return { error: "Name is required" };
-  if (!endpoint) return { error: "Endpoint is required" };
+  if (!sourceTypes.has(type)) return { error: "Invalid type" };
 
-  if (!sourceTypes.has(String(p.sourceType))) return { error: "Invalid sourceType" };
-  if (!categories.has(String(p.category))) return { error: "Invalid category" };
-  if (!frequencyModes.has(String(p.frequencyMode))) return { error: "Invalid frequencyMode" };
-  if (!authTypes.has(String(p.authType))) return { error: "Invalid authType" };
-  if (!dedupeStrategies.has(String(p.dedupeStrategy))) return { error: "Invalid dedupeStrategy" };
-
-  const timeoutSeconds = Number(p.timeoutSeconds);
-  const retryCount = Number(p.retryCount);
-  const retryBackoffSeconds = Number(p.retryBackoffSeconds);
-  const maxFetchItems = Number(p.maxFetchItems);
-  const anomalyThresholdPct = Number(p.anomalyThresholdPct);
-
-  if (!Number.isInteger(timeoutSeconds) || timeoutSeconds <= 0 || timeoutSeconds > 600) {
-    return { error: "timeoutSeconds must be an integer between 1 and 600" };
-  }
-  if (!Number.isInteger(retryCount) || retryCount < 0 || retryCount > 10) {
-    return { error: "retryCount must be an integer between 0 and 10" };
-  }
-  if (!Number.isInteger(retryBackoffSeconds) || retryBackoffSeconds < 0 || retryBackoffSeconds > 3600) {
-    return { error: "retryBackoffSeconds must be an integer between 0 and 3600" };
-  }
-  if (!Number.isInteger(maxFetchItems) || maxFetchItems <= 0 || maxFetchItems > 5000) {
-    return { error: "maxFetchItems must be an integer between 1 and 5000" };
-  }
-  if (!Number.isInteger(anomalyThresholdPct) || anomalyThresholdPct < 100 || anomalyThresholdPct > 1000) {
-    return { error: "anomalyThresholdPct must be an integer between 100 and 1000" };
+  if (url && email) {
+    return { error: "Only one identifier is allowed: url or email" };
   }
 
-  let authConfig: Record<string, unknown> = {};
-  if (p.authConfig && typeof p.authConfig === "object" && !Array.isArray(p.authConfig)) {
-    authConfig = p.authConfig as Record<string, unknown>;
+  if (type === "rss_feeds" && !url) return { error: "rss_feeds requires url" };
+  if (type === "event_feeds" && !url) return { error: "event_feeds requires url" };
+  if (type === "email_feeds" && !email) return { error: "email_feeds requires email" };
+  if (type === "social_feeds") {
+    if (!url) return { error: "social_feeds requires url" };
+    if (!platform) return { error: "social_feeds requires platform" };
   }
-
-  const isEnabled = p.isEnabled === undefined ? true : Boolean(p.isEnabled);
-  const anomalyAlertEnabled = p.anomalyAlertEnabled === undefined ? true : Boolean(p.anomalyAlertEnabled);
+  if (type === "news_feeds" && !url && !email) return { error: "news_feeds requires url or email" };
 
   const value: DataSourceInput = {
     name,
-    description: typeof p.description === "string" ? p.description.trim() : null,
-    sourceType: p.sourceType as DataSourceInput["sourceType"],
-    category: p.category as DataSourceInput["category"],
-    endpoint,
-    isEnabled,
-    frequencyMode: p.frequencyMode as DataSourceInput["frequencyMode"],
-    frequencyValue: typeof p.frequencyValue === "string" ? p.frequencyValue.trim() || null : null,
-    authType: p.authType as DataSourceInput["authType"],
-    authConfig,
-    timeoutSeconds,
-    retryCount,
-    retryBackoffSeconds,
-    dedupeStrategy: p.dedupeStrategy as DataSourceInput["dedupeStrategy"],
-    dedupeField: typeof p.dedupeField === "string" ? p.dedupeField.trim() || null : null,
-    maxFetchItems,
-    anomalyAlertEnabled,
-    anomalyThresholdPct,
+    type,
+    platform: type === "social_feeds" ? platform || null : null,
+    url: url || null,
+    email: email || null,
+    isActive: p.isActive === undefined ? true : Boolean(p.isActive),
   };
 
   return { value };
